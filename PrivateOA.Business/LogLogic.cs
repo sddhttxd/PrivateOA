@@ -49,43 +49,55 @@ namespace PrivateOA.Business
         /// <summary>
         /// 查询日志
         /// </summary>
-        /// <param name="log">查询条件</param>
-        /// <param name="key">业务GUID</param>
+        /// <param name="request">查询条件</param>
         /// <returns>日志列表</returns>
-        public List<ActionLog> GetLogList(LogQuery log, string key)
+        public Response<List<ActionLog>> GetLogList(Request<LogQuery> request)
         {
-            List<ActionLog> list = new List<ActionLog>();
+            Response<List<ActionLog>> response = new Response<List<ActionLog>>();
             try
             {
-                IQueryable<ActionLog> query = dbContext.ActionLogs.AsQueryable();
-                query = query.Where(o => (int)o.Type == log.Type.GetHashCode());
-                if (log.UserID.HasValue)
+                if (request != null && request.Data != null)
                 {
-                    query = query.Where(o => o.UserID == log.UserID.Value);
+                    LogQuery log = request.Data;
+                    IQueryable<ActionLog> query = dbContext.ActionLogs.AsQueryable();
+                    query = query.Where(o => (int)o.Type == log.Type.GetHashCode());
+                    if (log.UserID.HasValue)
+                    {
+                        query = query.Where(o => o.UserID == log.UserID.Value);
+                    }
+                    if (log.StartTime.HasValue)
+                    {
+                        query = query.Where(o => o.LogTime >= log.StartTime);
+                    }
+                    if (log.EndTime.HasValue)
+                    {
+                        query = query.Where(o => o.LogTime <= log.EndTime);
+                    }
+                    if (string.IsNullOrEmpty(log.KeyValue))
+                    {
+                        query = query.Where(o => o.KeyValue == log.KeyValue);
+                    }
+                    if (string.IsNullOrEmpty(log.KeyWord))
+                    {
+                        query = query.Where(o => o.Content.Contains(log.KeyWord));
+                    }
+                    if (string.IsNullOrEmpty(log.ClientIP))
+                    {
+                        query = query.Where(o => o.ClientIP == log.ClientIP);
+                    }
+                    response.Result = query.OrderByDescending(o => o.LogTime).ToList();
+                    if (response.Result != null && response.Result.Count > 0)
+                    {
+                        response.IsSuccess = true;
+                    }
                 }
-                if (log.StartTime.HasValue)
-                {
-                    query = query.Where(o => o.LogTime >= log.StartTime);
-                }
-                if (log.EndTime.HasValue)
-                {
-                    query = query.Where(o => o.LogTime <= log.EndTime);
-                }
-                if (string.IsNullOrEmpty(log.KeyValue))
-                {
-                    query = query.Where(o => o.Content.Contains(log.KeyValue));
-                }
-                if (string.IsNullOrEmpty(log.ClientIP))
-                {
-                    query = query.Where(o => o.ClientIP == log.ClientIP);
-                }
-                list = query.OrderByDescending(o => o.LogTime).ToList();
             }
             catch (Exception ex)
             {
-                AddLog(Common.CommonEnum.LogType.Error, "GetLogList,查询日志异常：" + ex.Message, key);
+                response.ErrorMsg = "查询失败，系统异常！";
+                AddLog(Common.CommonEnum.LogType.Error, "GetLogList,查询日志异常：" + ex.Message, request.RequestKey);
             }
-            return list;
+            return response;
         }
 
     }

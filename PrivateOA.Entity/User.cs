@@ -41,6 +41,10 @@ namespace PrivateOA.Entity
         /// </summary>
         public UserStatus Status { get; set; }
         /// <summary>
+        /// 剩余调休时长
+        /// </summary>
+        public int ExistHours { get; set; }
+        /// <summary>
         /// 备注
         /// </summary>
         public string Remark { get; set; }

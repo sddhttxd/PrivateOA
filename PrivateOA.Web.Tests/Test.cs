@@ -33,6 +33,7 @@ namespace PrivateOA.Web.Tests
         public void AddUser()
         {
             var key = Guid.NewGuid().ToString();
+            Request<User> request = new Request<User>();
             User user = new User()
             {
                 UserID = 0,
@@ -46,7 +47,10 @@ namespace PrivateOA.Web.Tests
                 AddTime = DateTime.Now,
                 ModifiedTime = DateTime.Now
             };
-            var result = userLogic.AddUser(user, key);
+            request.Data = user;
+            request.RequestKey = Guid.NewGuid().ToString();
+            request.RequsetTime = DateTime.Now;
+            var result = userLogic.AddUser(request);
         }
         #endregion
     }

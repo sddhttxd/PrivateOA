@@ -15,7 +15,7 @@ namespace PrivateOA.Web.Controllers
         // GET: User
         public ActionResult Index()
         {
-            return View();
+            return null;
         }
 
         /// <summary>
@@ -26,11 +26,22 @@ namespace PrivateOA.Web.Controllers
         {
             if (Request.HttpMethod == "POST")
             {
-                var key = Guid.NewGuid().ToString();
-                List<User> list = new List<User>();
-                list = logic.GetUsers(key);
-                return Json(new { data = list }, JsonRequestBehavior.AllowGet);
-                //return Json(new { data = list });
+                Request request = new Entity.Request()
+                {
+                    RequestKey = Guid.NewGuid().ToString(),
+                    RequsetTime = DateTime.Now
+                };
+                Response<List<User>> response = new Response<List<Entity.User>>();
+                response = logic.GetUsers(request);
+                if (response != null && response.IsSuccess)
+                {
+                    return Json(new { data = response.Result }, JsonRequestBehavior.AllowGet);
+                    //return Json(new { data = list });
+                }
+                else
+                {
+                    return View();
+                }
             }
             else
             {
@@ -39,11 +50,90 @@ namespace PrivateOA.Web.Controllers
         }
 
         /// <summary>
-        /// 
+        /// 注册
         /// </summary>
         /// <returns></returns>
-        public ActionResult AddUser() {
-            return View();
+        public ActionResult UserRegist(User user)
+        {
+            try
+            {
+                if (Request.HttpMethod == "POST")
+                {
+                    Response response = new Entity.Response();
+                    Request<User> request = new Entity.Request<User>();
+                    User data = new Entity.User()
+                    {
+                        UserName = user.UserName,
+                        TrueName = user.TrueName,
+                        PassWord = user.PassWord,
+                        TellPhone = user.TellPhone,
+                        Department = user.Department,
+                        Status = user.Status,
+                        ExistHours = 0,
+                        Remark = user.Remark,
+                        AddTime = DateTime.Now,
+                        ModifiedTime = DateTime.Now
+                    };
+                    request.Data = data;
+                    request.RequestKey = Guid.NewGuid().ToString();
+                    request.RequsetTime = DateTime.Now;
+                    response = logic.AddUser(request);
+                    if (response != null && response.IsSuccess)
+                    {
+                        return Json(response.IsSuccess, JsonRequestBehavior.AllowGet);
+                        //return Json(new { data = list });
+                    }
+                    else
+                    {
+                        return Json(response.IsSuccess);
+                    }
+                }
+                else
+                {
+                    return View();
+                }
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// <summary>
+        /// 登录
+        /// </summary>
+        /// <returns></returns>
+        public ActionResult UserLogin(LoginRequest login)
+        {
+            if (Request.HttpMethod == "POST")
+            {
+                Response<User> response = new Entity.Response<User>();
+                Request<LoginRequest> request = new Entity.Request<LoginRequest>();
+                LoginRequest data = new LoginRequest()
+                {
+                    UserName = login.UserName,
+                    TrueName = login.TrueName,
+                    TellPhone = login.TellPhone,
+                    PassWord = login.PassWord
+                };
+                request.Data = data;
+                request.RequestKey = Guid.NewGuid().ToString();
+                request.RequsetTime = DateTime.Now;
+                response = logic.UserLogin(request);
+                if (response != null && response.IsSuccess)
+                {
+                    return Json(response, JsonRequestBehavior.AllowGet);
+                    //return Json(new { data = list });
+                }
+                else
+                {
+                    return Json(response);
+                }
+            }
+            else
+            {
+                return View();
+            }
         }
 
     }

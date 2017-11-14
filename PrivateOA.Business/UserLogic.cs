@@ -24,125 +24,166 @@ namespace PrivateOA.Business
         /// <summary>
         /// 添加用户（注册）
         /// </summary>
-        /// <param name="user">用户</param>
-        /// <param name="key">key值</param>
+        /// <param name="request"></param>
         /// <returns>添加结果</returns>
-        public bool AddUser(User user, string key)
+        public Response AddUser(Request<User> request)
         {
-            bool result = false;
+            Response response = new Response();
             try
             {
-                dbContext.Users.Add(user);
-                if (dbContext.SaveChanges() > 0)
+                if (request != null && request.Data != null)
                 {
-                    result = true;
-                    log.AddLog(Common.CommonEnum.LogType.Info, "AddUser,注册成功：" + JsonConvert.SerializeObject(user), key);
+                    dbContext.Users.Add(request.Data);
+                    if (dbContext.SaveChanges() > 0)
+                    {
+                        response.IsSuccess = true;
+                        log.AddLog(Common.CommonEnum.LogType.Info, "AddUser,注册成功：" + JsonConvert.SerializeObject(request), request.RequestKey);
+                    }
                 }
             }
             catch (Exception ex)
             {
-                result = false;
-                log.AddLog(Common.CommonEnum.LogType.Error, "AddUser,注册异常：" + ex.Message, key);
+                response.ErrorMsg = "添加失败，系统异常！";
+                log.AddLog(Common.CommonEnum.LogType.Error, "AddUser,注册异常：" + ex.Message, request.RequestKey);
             }
-            return result;
+            return response;
         }
 
         /// <summary>
         /// 用户登录
         /// </summary>
-        /// <param name="acct">姓名、账号或手机</param>
         /// <param name="pwd">密码</param>
         /// <returns>登录结果</returns>
-        public bool UserLogin(string acct, string pwd, string key)
+        public Response<User> UserLogin(Request<LoginRequest> request)
         {
-            bool result = new bool();
+            Response<User> response = new Response<User>();
             try
             {
-                IQueryable<User> query = dbContext.Users.AsQueryable();
-                query = query.Where(o => o.UserName == acct || o.TrueName == acct || o.TellPhone == acct);
-                List<User> users = query.OrderByDescending(o => o.ModifiedTime).ToList();
-                if (users != null && users.Count > 0)
+                if (request != null && request.Data != null)
                 {
-                    foreach (User user in users)
+                    IQueryable<User> query = dbContext.Users.AsQueryable();
+                    query = query.Where(o => o.UserName == request.Data.UserName || o.TrueName == request.Data.TrueName || o.TellPhone == request.Data.TellPhone);
+                    List<User> users = query.OrderByDescending(o => o.ModifiedTime).ToList();
+                    if (users != null && users.Count > 0)
                     {
-                        if (user.PassWord == pwd)
+                        foreach (User user in users)
                         {
-                            result = true;
+                            if (user.PassWord == request.Data.PassWord)
+                            {
+                                response.IsSuccess = true;
+                                response.Result = user;
+                            }
                         }
-                    }
-                    if (result)
-                    {
-                        utility.SetCookie(ConfigurationManager.AppSettings["CookieName"], JsonConvert.SerializeObject(users[0]));
-                        log.AddLog(Common.CommonEnum.LogType.Info, "UserLogin,登录成功：" + JsonConvert.SerializeObject(users), key);
+                        if (response.IsSuccess)
+                        {
+                            utility.SetCookie(ConfigurationManager.AppSettings["CookieName"], JsonConvert.SerializeObject(users[0]));
+                            log.AddLog(Common.CommonEnum.LogType.Info, "UserLogin,登录成功：" + JsonConvert.SerializeObject(users), request.RequestKey);
+                        }
+                        else
+                        {
+                            response.ErrorMsg = "登录失败，密码不正确！";
+                            log.AddLog(Common.CommonEnum.LogType.Info, "UserLogin,登录失败：" + JsonConvert.SerializeObject(users), request.RequestKey);
+                        }
                     }
                     else
                     {
-                        log.AddLog(Common.CommonEnum.LogType.Info, "UserLogin,登录失败：" + JsonConvert.SerializeObject(users), key);
+                        response.ErrorMsg = "登录失败，用户未注册！";
+                        log.AddLog(Common.CommonEnum.LogType.Info, "UserLogin,登录失败：" + JsonConvert.SerializeObject(users), request.RequestKey);
                     }
-                }
-                else
-                {
-                    log.AddLog(Common.CommonEnum.LogType.Info, "UserLogin,登录失败：" + JsonConvert.SerializeObject(users), key);
                 }
             }
             catch (Exception ex)
             {
-                result = false;
-                log.AddLog(Common.CommonEnum.LogType.Error, "UserLogin,登录异常：" + ex.Message, key);
+                response.ErrorMsg = "登录失败，系统异常！";
+                log.AddLog(Common.CommonEnum.LogType.Error, "UserLogin,登录异常：" + ex.Message, request.RequestKey);
             }
-            return result;
+            return response;
         }
 
         /// <summary>
         /// 编辑用户（修改）
         /// </summary>
-        /// <param name="user">用户</param>
+        /// <param name="request"></param>
         /// <returns></returns>
-        public void EditUser(User user, string key)
+        public Response EditUser(Request<User> request)
         {
+            Response response = new Response();
             try
             {
-                if (user != null)
+                if (request != null && request.Data != null)
                 {
-                    dbContext.Entry(user).State = EntityState.Modified;
+                    dbContext.Entry(request.Data).State = EntityState.Modified;
                     if (dbContext.SaveChanges() > 0)
                     {
-                        log.AddLog(Common.CommonEnum.LogType.Info, "EditUser,修改成功：" + JsonConvert.SerializeObject(user), key);
+                        response.IsSuccess = true;
                     }
+                    log.AddLog(Common.CommonEnum.LogType.Info, "EditUser,修改成功：" + JsonConvert.SerializeObject(request), request.RequestKey);
                 }
             }
             catch (Exception ex)
             {
-                log.AddLog(Common.CommonEnum.LogType.Error, "EditUser,修改异常：" + ex.Message, key);
+                response.ErrorMsg = "修改失败，系统异常！";
+                log.AddLog(Common.CommonEnum.LogType.Error, "EditUser,修改异常：" + ex.Message, request.RequestKey);
             }
+            return response;
         }
 
         /// <summary>
         /// 删除用户
         /// </summary>
-        /// <param name="user">用户</param>
+        /// <param name="request"></param>
         /// <returns></returns>
-        public void DelUser(User user)
+        public Response DelUser(Request<User> request)
         {
+            Response response = new Response();
+            try
+            {
+                if (request != null && request.Data != null)
+                {
+                    dbContext.Users.Remove(request.Data);
+                    if (dbContext.SaveChanges() > 0)
+                    {
+                        response.IsSuccess = true;
+                    }
+                }
+                log.AddLog(Common.CommonEnum.LogType.Info, "DelUser,删除结果：" + JsonConvert.SerializeObject(response), request.RequestKey);
+            }
+            catch (Exception ex)
+            {
+                response.ErrorMsg = "删除失败，系统异常！";
+                log.AddLog(Common.CommonEnum.LogType.Error, "DelUser,删除异常：" + ex.Message, request.RequestKey);
+            }
+            return response;
         }
 
         /// <summary>
         /// 获取用户列表
         /// </summary>
+        /// <param name="request"></param>
         /// <returns></returns>
-        public List<User> GetUsers(string key)
+        public Response<List<User>> GetUsers(Request request)
         {
-            List<User> list = new List<User>();
+            Response<List<User>> response = new Response<List<User>>();
             try
             {
                 IQueryable<User> query = dbContext.Users.AsQueryable();
-                list = query.OrderByDescending(o => o.ModifiedTime).ToList();
+                response.Result = query.OrderByDescending(o => o.ModifiedTime).ToList();
+                if (response.Result != null && response.Result.Count > 0)
+                {
+                    response.IsSuccess = true;
+                }
+                else
+                {
+                    response.ErrorMsg = "没有数据！";
+                }
+                log.AddLog(Common.CommonEnum.LogType.Info, "GetUsers,查询结果：" + JsonConvert.SerializeObject(response), request.RequestKey);
             }
             catch (Exception ex)
             {
-                log.AddLog(Common.CommonEnum.LogType.Error, "GetUsers,查询异常：" + ex.Message, key);
+                response.ErrorMsg = "查询失败，系统异常！";
+                log.AddLog(Common.CommonEnum.LogType.Error, "GetUsers,查询异常：" + ex.Message, request.RequestKey);
             }
-            return list;
+            return response;
         }
     }
 }

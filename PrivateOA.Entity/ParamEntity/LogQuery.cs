@@ -29,6 +29,10 @@ namespace PrivateOA.Entity
         /// </summary>
         public string KeyValue { set; get; }
         /// <summary>
+        /// 关键字
+        /// </summary>
+        public string KeyWord { set; get; }
+        /// <summary>
         /// 操作用户
         /// </summary>
         public int? UserID { set; get; }

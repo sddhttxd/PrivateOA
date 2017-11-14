@@ -55,7 +55,7 @@ namespace PrivateOA.Common
             try
             {
                 var _user = GetCookie(strName);
-                if (string.IsNullOrEmpty(_user))
+                if (!string.IsNullOrEmpty(_user))
                 {
                     //User user = JsonConvert.DeserializeObject<User>(_user);
                     //return user != null ? user.UserID : 0;

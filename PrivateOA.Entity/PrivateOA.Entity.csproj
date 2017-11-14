@@ -40,9 +40,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BaseEntity\Request.cs" />
+    <Compile Include="BaseEntity\Response.cs" />
     <Compile Include="JBRecord.cs" />
     <Compile Include="ActionLog.cs" />
     <Compile Include="ParamEntity\JBQuery.cs" />
+    <Compile Include="ParamEntity\LoginRequest.cs" />
     <Compile Include="ParamEntity\LogQuery.cs" />
     <Compile Include="ParamEntity\QJQuery.cs" />
     <Compile Include="ParamEntity\TXStatistics.cs" />
