@@ -1,0 +1,133 @@
+﻿
+@{
+    ViewBag.Title = "UserDetail";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    int userid = Convert.ToInt32(ViewData["UserID"].ToString());
+}
+
+
+<div class="container">
+    <h2>用户信息</h2>
+    <form id="detailform">
+        <div class="form-group">
+            <label for="firstname" class="col-sm-1 control-label">用户名：</label>
+            <span id="txtUserName"></span>
+        </div>
+        <div class="form-group">
+            <label for="firstname" class="col-sm-1 control-label">密码：</label>
+            <span id="txtPassword"></span>
+        </div>
+        <div class="form-group">
+            <label for="firstname" class="col-sm-1 control-label">姓名：</label>
+            <span id="txtTrueName"></span>
+        </div>
+        <div class="form-group">
+            <label for="firstname" class="col-sm-1 control-label">角色：</label>
+            <span id="txtRole"></span>
+        </div>
+        <div class="form-group">
+            <label for="firstname" class="col-sm-1 control-label">电话：</label>
+            <span id="txtTellPhone"></span>
+        </div>
+        <div class="form-group">
+            <label for="firstname" class="col-sm-1 control-label">部门：</label>
+            <span id="txtDepartment"></span>
+        </div>
+        <div class="form-group">
+            <label for="firstname" class="col-sm-1 control-label">状态：</label>
+            <span id="txtStatus"></span>
+        </div>
+        <div class="form-group">
+            <label for="firstname" class="col-sm-1 control-label">备注：</label>
+            <span id="txtRemark"></span>
+        </div>
+        <button type="button" class="btn btn-info btn-flat" data-toggle="modal" data-target="#EditModal"><i class="glyphicon glyphicon-edit"></i> 修改资料</button>
+    </form>
+</div>
+
+<!-- 修改资料 -->
+<div class="modal" id="EditModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    @Html.Partial("UserEdit")
+</div>
+@section Scripts {
+    <script src="~/Scripts/jquery-1.10.2.min.js"></script>
+    <script src="~/Scripts/bootstrap-table.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <script src="~/Scripts/privateoa-common.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            var userid = @userid;
+            userDetail(userid);
+            $('#EditModal').on('show.bs.modal', function () {
+                $("#edit_txtUserName").val($("#txtUserName").html());
+                $("#edit_txtTrueName").val($("#txtTrueName").html());
+                $("#edit_txtPassword").val($("#txtPassword").html());
+                $("#edit_txtConfirmPwd").val($("#txtPassword").html());
+                $("#edit_txtTellPhone").val($("#txtTellPhone").html());
+                $("#edit_txtDepartment").val($("#txtDepartment").html());
+                $("#edit_sltRole").val($("#txtRole").html());
+                $("#edit_sltStatus").val($("#txtStatus").html());
+                $("#edit_txtRemark").val($("#txtRemark").html());
+            })
+        });
+
+        $("#btnSubmit").click(function () {
+            var user = new Object();
+            user.userid =  @userid;
+            user.username = $("#edit_txtUserName").val();
+            user.truename = $("#edit_txtTrueName").val();
+            user.password = $("#edit_txtPassword").val();
+            user.confirmpwd = $("#edit_txtConfirmPwd").val();
+            user.tellphone = $("#edit_txtTellPhone").val();
+            user.department = $("#edit_txtDepartment").val();
+            user.role = $("#edit_sltRole").val();
+            user.status = $("#edit_sltStatus").val();
+            user.remark = $("#edit_txtRemark").val();
+            $.ajax({
+                cache: true,
+                type: "POST",
+                url: "UserEdit",
+                data: user,
+                async: false,
+                error: function (request) {
+                    alert("error");
+                },
+                success: function (data) {
+                    alert("success");
+                    $('#EditModal').modal('hide');
+                    userDetail(user.userid);
+                }
+            });
+        });
+
+        function userDetail(userid) {
+            var user = new Object();
+            user.userid =  userid;
+            $.ajax({
+                cache: true,
+                type: "POST",
+                url: "UserDetail",
+                data: user,
+                async: false,
+                error: function (request) {
+                    alert("error");
+                },
+                success: function (data) {
+                    //alert("success");
+                    console.log(data);
+                    if (data != null) {
+                        $("#txtUserName").html(data.user.UserName);
+                        $("#txtTrueName").html(data.user.TrueName);
+                        $("#txtPassword").html(data.user.PassWord);
+                        $("#txtTellPhone").html(data.user.TellPhone);
+                        $("#txtDepartment").html(data.user.Department);
+                        $("#txtRole").html(getRole(data.user.Role));
+                        $("#txtStatus").html(getStatus(data.user.Status));
+                        $("#txtRemark").html(data.user.Remark);
+                    }
+                }
+            });
+        }
+
+    </script>
+}

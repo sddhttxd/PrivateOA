@@ -8,6 +8,7 @@ using System.Web.Mvc;
 
 namespace PrivateOA.Web.Controllers
 {
+    [RequestAuthorization]
     public class LogController : Controller
     {
         private readonly LogLogic logic = new LogLogic();
@@ -28,26 +29,15 @@ namespace PrivateOA.Web.Controllers
             if (Request.HttpMethod == "POST")
             {
                 Response<List<ActionLog>> response = new Response<List<ActionLog>>();
-                Request<LogQuery> request = new Request<LogQuery>();
-                LogQuery data = new LogQuery()
+                if (log != null)
                 {
-                    UserID = log.UserID,
-                    Type = log.Type,
-                    KeyValue = log.KeyValue,
-                    KeyWord = log.KeyWord,
-                    StartTime = log.StartTime,
-                    EndTime = log.EndTime,
-                    ClientIP = log.ClientIP
-                };
-                request.Data = data;
-                request.RequestKey = Guid.NewGuid().ToString();
-                request.RequsetTime = DateTime.Now;
-                response = logic.GetLogList(request);
-                if (response != null && response.IsSuccess)
-                {
-                    return Json(new { response });
+                    Request<LogQuery> request = new Request<LogQuery>();
+                    request.Data = log;
+                    request.RequestKey = Guid.NewGuid().ToString();
+                    request.RequsetTime = DateTime.Now;
+                    response = logic.GetLogList(request);
                 }
-                return Json(new { response }); ;
+                return Json(new { data = response.Result });
             }
             return View();
         }

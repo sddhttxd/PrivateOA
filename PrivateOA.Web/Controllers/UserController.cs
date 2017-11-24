@@ -1,13 +1,16 @@
-﻿using PrivateOA.Business;
+﻿using Newtonsoft.Json;
+using PrivateOA.Business;
 using PrivateOA.Entity;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Web;
 using System.Web.Mvc;
 
 namespace PrivateOA.Web.Controllers
 {
+    //[RequestAuthorization]
     public class UserController : Controller
     {
         private readonly UserLogic logic = new UserLogic();
@@ -22,26 +25,21 @@ namespace PrivateOA.Web.Controllers
         /// 用户列表
         /// </summary>
         /// <returns></returns>
-        public ActionResult UserList()
+        [RequestAuthorization]
+        public ActionResult UserList(UserQuery user)
         {
             if (Request.HttpMethod == "POST")
             {
-                Request request = new Entity.Request()
-                {
-                    RequestKey = Guid.NewGuid().ToString(),
-                    RequsetTime = DateTime.Now
-                };
                 Response<List<User>> response = new Response<List<Entity.User>>();
-                response = logic.GetUsers(request);
-                if (response != null && response.IsSuccess)
+                if (user != null)
                 {
-                    return Json(new { data = response.Result }, JsonRequestBehavior.AllowGet);
-                    //return Json(new { data = list });
+                    Request<UserQuery> request = new Entity.Request<UserQuery>();
+                    request.Data = user;
+                    request.RequestKey = Guid.NewGuid().ToString();
+                    request.RequsetTime = DateTime.Now;
+                    response = logic.GetUsers(request);
                 }
-                else
-                {
-                    return View();
-                }
+                return Json(new { data = response.Result });
             }
             else
             {
@@ -69,7 +67,7 @@ namespace PrivateOA.Web.Controllers
                         TellPhone = user.TellPhone,
                         Department = user.Department,
                         Status = user.Status,
-                        ExistHours = 0,
+                        //ExistHours = 0,
                         Remark = user.Remark,
                         AddTime = DateTime.Now,
                         ModifiedTime = DateTime.Now
@@ -122,12 +120,13 @@ namespace PrivateOA.Web.Controllers
                 response = logic.UserLogin(request);
                 if (response != null && response.IsSuccess)
                 {
-                    return Json(response, JsonRequestBehavior.AllowGet);
-                    //return Json(new { data = list });
+                    TempData["User"] = response.Result;
+                    return Json(new { response.Result });
+
                 }
                 else
                 {
-                    return Json(response);
+                    return Json(new { response.ErrorMsg });
                 }
             }
             else
@@ -136,5 +135,118 @@ namespace PrivateOA.Web.Controllers
             }
         }
 
+        [RequestAuthorization]
+        public ActionResult LoginOut()
+        {
+            try
+            {
+                HttpCookie cookie = Request.Cookies.Get(ConfigurationManager.AppSettings["CookieName"]);
+                if (cookie != null)
+                {
+                    cookie.Expires = DateTime.Now.AddDays(-100);
+                    cookie.Value = null;
+                    Response.Cookies.Add(cookie);
+                }
+                return Redirect("/User/UserLogin");
+            }
+            catch
+            {
+                throw new Exception("注销失败！");
+            }
+        }
+
+        /// <summary>
+        /// 用户详情
+        /// </summary>
+        /// <param name="userid">用户ID</param>
+        /// <returns></returns>
+        [RequestAuthorization]
+        public ActionResult UserDetail(User data)
+        {
+            if (Request.HttpMethod == "POST")
+            {
+                User user = TempData["User"] as User;
+                if (user != null)
+                {
+                    ViewData["UserID"] = user.UserID;
+                    return Json(new { user });
+                }
+                else
+                {
+                    Response<User> response = new Response<Entity.User>();
+                    Request<int> request = new Request<int>();
+                    request.Data = data.UserID;//userid;
+                    request.RequestKey = Guid.NewGuid().ToString();
+                    request.RequsetTime = DateTime.Now;
+                    response = logic.GetUser(request);
+                    if (response != null && response.IsSuccess)
+                    {
+                        ViewData["UserID"] = data.UserID;//userid;
+                        return Json(new { user = response.Result });
+                    }
+                    else
+                    {
+                        return null;
+                    }
+                }
+            }
+            else
+            {
+                ViewData["UserID"] = data.UserID;//userid;
+                return View();
+            }
+        }
+
+        /// <summary>
+        /// 修改用户信息
+        /// </summary>
+        /// <param name="user"></param>
+        /// <returns></returns>
+        [RequestAuthorization]
+        public ActionResult UserEdit(User user)
+        {
+            if (Request.HttpMethod == "POST")
+            {
+                Response response = new Entity.Response();
+                Request<User> request = new Request<Entity.User>();
+                request.Data = user;
+                request.RequestKey = Guid.NewGuid().ToString();
+                request.RequsetTime = DateTime.Now;
+                response = logic.EditUser(request);
+                return Json(new { response.IsSuccess });
+            }
+            else
+            {
+                return View();
+            }
+        }
+
+        /// <summary>
+        /// 删除用户信息
+        /// </summary>
+        /// <param name="userids"></param>
+        /// <returns></returns>
+        [RequestAuthorization]
+        public ActionResult UserDelete(User user)
+        {
+            if (Request.HttpMethod == "POST")
+            {
+                Response response = new Entity.Response();
+                if (user != null)
+                {
+                    Request<int> request = new Request<int>();
+                    request.Data = user.UserID;
+                    request.RequestKey = Guid.NewGuid().ToString();
+                    request.RequsetTime = DateTime.Now;
+                    response = logic.DelUser(request);
+                }
+                return Json(new { response });
+            }
+            else
+            {
+                return View();
+            }
+
+        }
     }
 }

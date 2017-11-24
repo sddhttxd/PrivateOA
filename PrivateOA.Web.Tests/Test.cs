@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using static PrivateOA.Common.CommonEnum;
+using static PrivateOA.Entity.CommonEnum;
 
 namespace PrivateOA.Web.Tests
 {
@@ -53,5 +53,12 @@ namespace PrivateOA.Web.Tests
             var result = userLogic.AddUser(request);
         }
         #endregion
+
+        [TestMethod]
+        public void EnumTest()
+        {
+            var a1 = CommonEnum.RoleType.Admin.GetTypeCode();
+            var a2 = CommonEnum.RoleType.Admin.GetHashCode();
+        }
     }
 }

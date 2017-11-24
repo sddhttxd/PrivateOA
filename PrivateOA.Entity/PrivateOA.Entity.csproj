@@ -42,23 +42,19 @@
   <ItemGroup>
     <Compile Include="BaseEntity\Request.cs" />
     <Compile Include="BaseEntity\Response.cs" />
-    <Compile Include="JBRecord.cs" />
-    <Compile Include="ActionLog.cs" />
+    <Compile Include="EnumEntity\Enum.cs" />
+    <Compile Include="DBEntity\JBRecord.cs" />
+    <Compile Include="DBEntity\ActionLog.cs" />
     <Compile Include="ParamEntity\JBQuery.cs" />
     <Compile Include="ParamEntity\LoginRequest.cs" />
     <Compile Include="ParamEntity\LogQuery.cs" />
     <Compile Include="ParamEntity\QJQuery.cs" />
     <Compile Include="ParamEntity\TXStatistics.cs" />
+    <Compile Include="ParamEntity\UserQuery.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="QJRecord.cs" />
-    <Compile Include="TXHours.cs" />
-    <Compile Include="User.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\PrivateOA.Common\PrivateOA.Common.csproj">
-      <Project>{62D54270-BD0F-4D1A-BFD0-44810A83DE5F}</Project>
-      <Name>PrivateOA.Common</Name>
-    </ProjectReference>
+    <Compile Include="DBEntity\QJRecord.cs" />
+    <Compile Include="DBEntity\TXHours.cs" />
+    <Compile Include="DBEntity\User.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

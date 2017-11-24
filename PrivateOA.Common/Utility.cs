@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json.Linq;
+using PrivateOA.Entity;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -6,6 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Web;
+using Newtonsoft.Json;
 
 namespace PrivateOA.Common
 {
@@ -15,7 +17,7 @@ namespace PrivateOA.Common
     public class Utility
     {
         /// <summary>
-        /// 写缓存
+        /// 写缓存(string)
         /// </summary>
         /// <param name="strName">名称</param>
         /// <param name="strValue">cookie值</param>
@@ -31,11 +33,27 @@ namespace PrivateOA.Common
         }
 
         /// <summary>
+        /// 写缓存(object)
+        /// </summary>
+        /// <param name="strName">名称</param>
+        /// <param name="user">cookie值</param>
+        public void SetCookie(string strName, User user)
+        {
+            HttpCookie cookie = HttpContext.Current.Request.Cookies[strName];
+            if (cookie == null)
+            {
+                cookie = new HttpCookie(strName);
+            }
+            cookie.Value = UrlEncode(JsonConvert.SerializeObject(user));
+            HttpContext.Current.Response.AppendCookie(cookie);
+        }
+
+        /// <summary>
         /// 读cookie值(string)
         /// </summary>
         /// <param name="strName">名称</param>
         /// <returns>cookie值</returns>
-        public string GetCookie(string strName)
+        public string GetStrCookie(string strName)
         {
             if (HttpContext.Current.Request.Cookies != null && HttpContext.Current.Request.Cookies[strName] != null)
             {
@@ -45,7 +63,21 @@ namespace PrivateOA.Common
         }
 
         /// <summary>
-        /// 获取Cookie中用户
+        /// 读cookie值(object)
+        /// </summary>
+        /// <param name="strName">名称</param>
+        /// <returns>cookie值</returns>
+        public User GetCookie(string strName)
+        {
+            if (HttpContext.Current.Request.Cookies != null && HttpContext.Current.Request.Cookies[strName] != null)
+            {
+                return JsonConvert.DeserializeObject<User>(UrlDecode(HttpContext.Current.Request.Cookies[strName].Value.ToString()));
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// 获取Cookie中用户ID
         /// </summary>
         /// <param name="strName">名称</param>
         /// <returns>用户ID</returns>
@@ -55,12 +87,12 @@ namespace PrivateOA.Common
             try
             {
                 var _user = GetCookie(strName);
-                if (!string.IsNullOrEmpty(_user))
+                if (_user != null)
                 {
-                    //User user = JsonConvert.DeserializeObject<User>(_user);
-                    //return user != null ? user.UserID : 0;
-                    JObject user = JObject.Parse(_user);
-                    result = user != null ? Convert.ToInt32(user.GetValue("UserID")) : 0;
+                    User user = _user;
+                    return user != null ? user.UserID : 0;
+                    //JObject user = JObject.Parse(_user);
+                    //result = user != null ? Convert.ToInt32(user.GetValue("UserID")) : 0;
                 }
                 return result;
             }
@@ -71,6 +103,26 @@ namespace PrivateOA.Common
                 //throw ex;
             }
         }
+
+        /// <summary>
+        /// 获取Cookie中用户角色
+        /// </summary>
+        /// <param name="strName">名称</param>
+        /// <returns>角色</returns>
+        public CommonEnum.RoleType GetRoleType(string strName)
+        {
+            try
+            {
+                var user = GetCookie(strName);
+                return user != null ? user.Role : CommonEnum.RoleType.Customer;
+            }
+            catch (Exception ex)
+            {
+                return CommonEnum.RoleType.Customer;
+                //throw ex;
+            }
+        }
+
         /// <summary>
         /// 获取客户端IP
         /// </summary>

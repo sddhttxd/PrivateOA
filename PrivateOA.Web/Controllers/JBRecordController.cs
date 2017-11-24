@@ -8,6 +8,7 @@ using System.Web.Mvc;
 
 namespace PrivateOA.Web.Controllers
 {
+    [RequestAuthorization]
     public class JBRecordController : Controller
     {
         private readonly JBLogic logic = new JBLogic();
@@ -28,16 +29,15 @@ namespace PrivateOA.Web.Controllers
             if (Request.HttpMethod == "POST")
             {
                 Response<List<JBRecord>> response = new Response<List<JBRecord>>();
-                Request<JBQuery> request = new Request<JBQuery>();
-                request.Data = data;
-                request.RequestKey = Guid.NewGuid().ToString();
-                request.RequsetTime = DateTime.Now;
-                response = logic.GetJBRecordList(request);
-                return Json(new { response });
-                //if (response != null && response.IsSuccess)
-                //{
-                //    return Json(new { response });
-                //}
+                if (data != null)
+                {
+                    Request<JBQuery> request = new Request<JBQuery>();
+                    request.Data = data;
+                    request.RequestKey = Guid.NewGuid().ToString();
+                    request.RequsetTime = DateTime.Now;
+                    response = logic.GetJBRecordList(request);
+                }
+                return Json(new { data = response.Result });
             }
             else
             {
@@ -78,11 +78,14 @@ namespace PrivateOA.Web.Controllers
             if (Request.HttpMethod == "POST")
             {
                 Response response = new Entity.Response();
-                Request<JBRecord> request = new Request<JBRecord>();
-                request.Data = data;
-                request.RequestKey = Guid.NewGuid().ToString();
-                request.RequsetTime = DateTime.Now;
-                response = logic.EditJBRecord(request);
+                if (data != null)
+                {
+                    Request<JBRecord> request = new Request<JBRecord>();
+                    request.Data = data;
+                    request.RequestKey = Guid.NewGuid().ToString();
+                    request.RequsetTime = DateTime.Now;
+                    response = logic.EditJBRecord(request);
+                }
                 return Json(new { response });
             }
             else
@@ -96,16 +99,19 @@ namespace PrivateOA.Web.Controllers
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public ActionResult DelJB(JBRecord data)
+        public ActionResult DeleteJB(JBRecord data)
         {
             if (Request.HttpMethod == "POST")
             {
                 Response response = new Entity.Response();
-                Request<JBRecord> request = new Request<JBRecord>();
-                request.Data = data;
-                request.RequestKey = Guid.NewGuid().ToString();
-                request.RequsetTime = DateTime.Now;
-                response = logic.DelJBRecord(request);
+                if (data != null)
+                {
+                    Request<int> request = new Request<int>();
+                    request.Data = data.JID;
+                    request.RequestKey = Guid.NewGuid().ToString();
+                    request.RequsetTime = DateTime.Now;
+                    response = logic.DelJBRecord(request);
+                }
                 return Json(new { response });
             }
             else

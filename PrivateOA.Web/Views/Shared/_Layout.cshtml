@@ -1,13 +1,23 @@
-﻿<!DOCTYPE html>
+﻿@using PrivateOA.Common;
+@using PrivateOA.Entity;
+@using System.Configuration;
+
+<!DOCTYPE html>
 <html>
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>@ViewBag.Title - PrivateOA</title>
-    @Styles.Render("~/Content/css")
+    <title>PrivateOA - @ViewBag.Title</title>
+    @*@Styles.Render("~/Content/css")*@
+    <link href="~/Content/Site.css" rel="stylesheet" />
+    <link href="~/Content/bootstrap.css" rel="stylesheet" />
+    <link href="~/Content/bootstrap-theme.css" rel="stylesheet" />
+    <link href="~/Content/bootstrap-table.css" rel="stylesheet" />
+    <link href="~/Content/bootstrap-datetimepicker.css" rel="stylesheet" />
+    <link href="~/Content/privateoa-common.css" rel="stylesheet" />
+    @RenderSection("Styles", required: false)
     @Scripts.Render("~/bundles/modernizr")
-
 </head>
 <body>
     <div class="navbar navbar-inverse navbar-fixed-top">
@@ -18,17 +28,38 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                @Html.ActionLink("应用程序名称", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
+                @Html.ActionLink("个人考勤系统", "Index", "Home", new { area = "" }, new { @class = "navbar-brand" })
             </div>
             <div class="navbar-collapse collapse">
-                <ul class="nav navbar-nav">
-                    <li>@Html.ActionLink("用户信息", "UserList", "User")</li>
-                    <li>@Html.ActionLink("加班记录", "JBList", "JBRecord")</li>
-                    <li>@Html.ActionLink("请假记录", "QJList", "QJRecord")</li>
-                    <li>@Html.ActionLink("调休统计", "TXList", "TXHours")</li>
-                    <li>@Html.ActionLink("日志查询", "LogList", "Log")</li>
-                </ul>
-                @Html.Partial("_LoginPartial")
+                @{
+                    PrivateOA.Entity.User user = new Utility().GetCookie(ConfigurationManager.AppSettings["CookieName"]);
+                    if (user != null)
+                    {
+                        string actoin = "UserDetail";
+                        if (user.Role == CommonEnum.RoleType.Admin)
+                        {
+                            actoin = "UserList";
+                        }
+                        <ul class="nav navbar-nav">
+                            <li>@Html.ActionLink("用户信息", actoin, "User")</li>
+                            <li>@Html.ActionLink("加班记录", "JBList", "JBRecord")</li>
+                            <li>@Html.ActionLink("请假记录", "QJList", "QJRecord")</li>
+                            <li>@Html.ActionLink("调休统计", "TXList", "TXHours")</li>
+                            <li>@Html.ActionLink("日志查询", "LogList", "Log")</li>
+                        </ul>
+                        <div class="nav navbar-nav navbar-right" style="color:#e8e8e89c; margin-top:18px;">
+                            @user.TrueName &nbsp;&nbsp;
+                            <a href="@Url.Action("LoginOut", "User")"><i class="fa fa-sign-out text-danger"></i> 注销</a>
+                        </div>
+                    }
+                    else
+                    {
+                        <ul class="nav navbar-nav navbar-right">
+                            <li>@Html.ActionLink("注册", "UserRegist", "User")</li>
+                            <li>@Html.ActionLink("登录", "UserLogin", "User")</li>
+                        </ul>
+                    }
+                }
             </div>
         </div>
     </div>

@@ -8,6 +8,7 @@ using System.Web.Mvc;
 
 namespace PrivateOA.Web.Controllers
 {
+    [RequestAuthorization]
     public class QJRecordController : Controller
     {
         private readonly QJLogic logic = new QJLogic();
@@ -23,21 +24,20 @@ namespace PrivateOA.Web.Controllers
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public ActionResult JBList(QJQuery data)
+        public ActionResult QJList(QJQuery data)
         {
             if (Request.HttpMethod == "POST")
             {
                 Response<List<QJRecord>> response = new Response<List<QJRecord>>();
-                Request<QJQuery> request = new Request<QJQuery>();
-                request.Data = data;
-                request.RequestKey = Guid.NewGuid().ToString();
-                request.RequsetTime = DateTime.Now;
-                response = logic.GetQJRecordList(request);
-                return Json(new { response });
-                //if (response != null && response.IsSuccess)
-                //{
-                //    return Json(new { response });
-                //}
+                if (data != null)
+                {
+                    Request<QJQuery> request = new Request<QJQuery>();
+                    request.Data = data;
+                    request.RequestKey = Guid.NewGuid().ToString();
+                    request.RequsetTime = DateTime.Now;
+                    response = logic.GetQJRecordList(request);
+                }
+                return Json(new { data = response.Result });
             }
             else
             {
@@ -50,7 +50,7 @@ namespace PrivateOA.Web.Controllers
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public ActionResult AddJB(QJRecord data)
+        public ActionResult AddQJ(QJRecord data)
         {
             if (Request.HttpMethod == "POST")
             {
@@ -73,7 +73,7 @@ namespace PrivateOA.Web.Controllers
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public ActionResult EditJB(QJRecord data)
+        public ActionResult EditQJ(QJRecord data)
         {
             if (Request.HttpMethod == "POST")
             {
@@ -96,16 +96,19 @@ namespace PrivateOA.Web.Controllers
         /// </summary>
         /// <param name="data"></param>
         /// <returns></returns>
-        public ActionResult DelJB(QJRecord data)
+        public ActionResult DeleteQJ(QJRecord data)
         {
             if (Request.HttpMethod == "POST")
             {
                 Response response = new Entity.Response();
-                Request<QJRecord> request = new Request<QJRecord>();
-                request.Data = data;
-                request.RequestKey = Guid.NewGuid().ToString();
-                request.RequsetTime = DateTime.Now;
-                response = logic.DelQJRecord(request);
+                if (data != null)
+                {
+                    Request<int> request = new Request<int>();
+                    request.Data = data.QID;
+                    request.RequestKey = Guid.NewGuid().ToString();
+                    request.RequsetTime = DateTime.Now;
+                    response = logic.DelQJRecord(request);
+                }
                 return Json(new { response });
             }
             else

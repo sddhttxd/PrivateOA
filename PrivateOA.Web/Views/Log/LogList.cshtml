@@ -7,21 +7,57 @@
 
 <div class="container">
     <h2>日志列表</h2>
-    <form class="form-horizontal" role="form">
-        <div class="form-group">
-            日志类型：<input id="sltLogType" type="text" />
-            Key值：<input id="txtKeyValue" type="text" />
-            时间：<input id="dtStartTime" type="text" />-<input id="dtEndTime" type="text" /><br />
-            关键字：<input id="txtKeyWord" type="text" />
-            用户ID：<input id="txtUserID" type="text" />
-            客户端IP：<input id="txtClientIP" type="text" />
-            @*<button type="button" class="btn btn-info btn-flat" id="btnSearch"><i class="glyphicon glyphicon-search"></i> 查询</button>*@
+    <form class="form-inline" role="form" style="margin-bottom:10px;">
+        <div style="margin-bottom:10px;">
+            <div class="form-group">
+                <label class="control-label">日志类型：</label>
+                <select id="sltLogType" class="form-control" style="width:150px;">
+                    <option value="0">全部日志</option>
+                    <option value="1">业务日志</option>
+                    <option value="2">错误日志</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="control-label">Key：</label>
+                <input id="txtKeyValue" type="text" class="form-control" style="width:150px;" />
+            </div>
+            <div class="form-group">
+                <label class="control-label">用户ID：</label>
+                <input id="txtUserID" type="text" class="form-control" style="width:150px;" />
+            </div>
+            <div class="form-group">
+                <label class="control-label">客户端IP：</label>
+                <input id="txtClientIP" type="text" class="form-control" style="width:150px;" />
+            </div>
+            <div class="form-group">
+                <label class="control-label">关键字：</label>
+                <input id="txtKeyWord" type="text" class="form-control" style="width:150px;" />
+            </div>
+        </div><div>
+            <div class="form-group">
+                <label class="control-label">起止时间：</label>
+                <div class='input-group date' id='dtStartTime' style="width:200px;">
+                    <input type='text' class="form-control" />
+                    <span class="input-group-addon">
+                        <span class="glyphicon glyphicon-calendar"></span>
+                    </span>
+                </div>-
+                <div class='input-group date' id='dtEndTime' style="width:200px;">
+                    <input type='text' class="form-control" />
+                    <span class="input-group-addon">
+                        <span class="glyphicon glyphicon-calendar"></span>
+                    </span>
+                </div>
+            </div>
+            <div class="form-group">
+                <button type="button" class="btn btn-info btn-flat" id="btnSearch"><i class="glyphicon glyphicon-search"></i> 查询</button>
+            </div>
         </div>
     </form>
-    <table class="table table-striped table-bordered table-hover table-condensed"></table>
-    <div id="toolbar">
-        <button type="button" class="btn btn-info btn-flat" id="btnSearch"><i class="glyphicon glyphicon-search"></i> 查询</button>
-    </div>
+    <table class="table table-hover "></table>
+    @*<div id="toolbar">
+            <button type="button" class="btn btn-info btn-flat" id="btnSearch"><i class="glyphicon glyphicon-search"></i> 查询</button>
+        </div>*@
     <!--[if lt IE 9]>
         <p style="display:inline-block;font-weight:bold;font-size:16px;"> 您的浏览器(IE8)版本过低这将影响页面速度和美观,请联系运维安装360浏览器或者升级您的IE版本。</p>
     <![endif]-->
@@ -30,92 +66,87 @@
 
 @section Scripts {
     <script src="~/Scripts/jquery-1.10.2.min.js"></script>
+    <script src="~/Scripts/moment-with-locales.min.js"></script>
+    <script src="~/Scripts/bootstrap-datetimepicker.min.js"></script>
     <script src="~/Scripts/bootstrap-table.js"></script>
     <script src="~/Scripts/bootstrap.min.js"></script>
+    <script src="~/Scripts/privateoa-common.js"></script>
     <script type="text/javascript">
-        var log = new Object();
         $(function () {
-            query(null);
+            $('#dtStartTime').datetimepicker({
+                format: 'YYYY-MM-DD HH:mm',
+                locale: moment.locale('zh-cn')
+            });
+            $('#dtEndTime').datetimepicker({
+                format: 'YYYY-MM-DD HH:mm',
+                locale: moment.locale('zh-cn')
+            });
         });
 
-        $("#btnSearch").click(function () {
-            log.Type = $("sltLogType").val();
-            log.KeyValue = $("#txtKeyValue").val();
-            log.StartTime = $("#dtStartTime").val();
-            log.EndTime = $("#dtEndTime").val();
-            log.KeyWord = $("#txtKeyWord").val();
-            log.UserID = $("#txtUserID").val();
-            log.ClientIP = $("#txtClientIP").val();
-            query(log);
-        });
-        JZ
-        function query(log) {
-            console.log(log);
-            $(".table").bootstrapTable({
-                //标题
-                title: "日志列表",
-                //是否显示下方的分页
-                pagination: true,
-                //当前页码
-                page: 1,
-                //每页展示的条数
-                rows: 10,
-                //表格数据请求的url
-                url: "LogList",
-                //ajax请求的时候是同步还是异步。true为异步
-                async: false,
-                //请求方式
-                method: 'post',
-                //是否可以自定义展示的列（右上角的表格小图标事件）
-                customColumns: true,
-                //是否展示列标题，即列头
-                showThead: true,
-                //可以附加查询条件。json方式传递
-                qData: log,
-                idField: "id",
-                //工具条
-                toolbar: "#toolbar",
-                //是否显示复选框
-                withCheckbox: true,
-                //是否显示列头的复选框（全选作用）
-                titleCheckbox: true,
-                //记录为空时的提示信息
-                emptyTips: "数据条目为空！",
-                //复选框存在的情况下，最多可以选择几个,1代表单选，只能选择一个。0为不限制
-                selectedNums: 1,
-                //列信息。title为列头，field此列取得数组对象的属性
-                columns: [
-                         {
-                             field: '', title: "序号", formatter: function (value, row, index) {
-                                 return index + 1;
-                             }
-                         },
-                         { field: 'RID', title: "日志ID" },
-                         { field: 'Type', title: '类型', sortable: true },
-                         { field: 'KeyValue', title: 'Key值', cls: "", sortable: false },
-                         { field: 'LogTime', title: '时间', cls: "hidemobile" },
-                         { field: 'Content', title: '内容', cls: "hidemobile" },
-                         { field: 'UserID', title: '用户ID', cls: "hidemobile" },
-                         { field: 'ClientIP', title: '客户端IP', cls: "hidemobile" }
-                ],
-                //表格加载前，可以在此方法里处理一些逻辑
-                onBeforeLoad: function (datagrid) {
-                    console.log('开始加载 表格数据');
-                },
-                //ajax请求成功时调用的方法
-                onComplete: function (datagrid) {
-                    console.log("数据请求完成！");
-                },
-                //ajax请求失败处理
-                onError: function (datagrid) {
-                    console.log("数据请求发生错误！");
-                },
-                //ajax请求成功返回，表格加载完毕后的处理
-                onLoadSuccess: function (obj) {
-                    console.log("表格加载成功！");
-                }
-            })
+        //初始化
+        var table = new Object();
+        table.Params = function (params) {
+            params.Type = $("sltLogType").val();
+            params.KeyValue = $("#txtKeyValue").val();
+            params.StartTime = $("#dtStartTime").find("input").val();
+            params.EndTime = $("#dtEndTime").find("input").val();
+            params.KeyWord = $("#txtKeyWord").val();
+            params.UserID = $("#txtUserID").val();
+            params.ClientIP = $("#txtClientIP").val();
+            return params;
         }
+        table.Init = $(".table").bootstrapTable({
+            title: "日志列表",                  //标题
+            url: 'LogList',                    //请求后台的URL（*）
+            method: 'post',                     //请求方式（*）
+            async: false,                       //ajax请求的时候是同步还是异步。true为异步
+            //toolbar: '#toolbar',                //工具按钮用哪个容器
+            queryParams: table.Params,          //传递参数（*）
+            pagination: true,                   //是否显示分页（*）
+            sidePagination: "client",           //分页方式：client客户端分页，server服务端分页（*）
+            pageList: [10, 25, 50, 100],        //可供选择的每页的行数（*）
+            //列信息。title为列头，field此列取得数组对象的属性
+            columns: [
+                     { field: 'RID', title: '日志ID', hidden: true },
+                     { field: 'Type', title: '类型' },
+                     { field: 'KeyValue', title: 'Key值' },
+                     { field: 'LogTime', title: '时间', sortable: true, formatter: function (value, row, index) { return getDate(value); } },
+                     { field: 'Content', title: '内容' },
+                     { field: 'UserID', title: '用户ID' },
+                     { field: 'ClientIP', title: '客户端IP' }
+            ],
+            //表格加载前，可以在此方法里处理一些逻辑
+            onBeforeLoad: function (datagrid) {
+                console.log('开始加载 表格数据');
+            },
+            //ajax请求成功时调用的方法
+            onComplete: function (datagrid) {
+                console.log("数据请求完成！");
+            },
+            //ajax请求失败处理
+            onError: function (datagrid) {
+                console.log("数据请求发生错误！");
+            },
+            //ajax请求成功返回，表格加载完毕后的处理
+            onLoadSuccess: function (obj) {
+                console.log("表格加载成功！");
+            }
+        });
+
+        //查询
+        $("#btnSearch").click(function () {
+            table.Params = function (params) {
+                params.Type = $("sltLogType").val();
+                params.KeyValue = $("#txtKeyValue").val();
+                params.StartTime = $("#dtStartTime").find("input").val();
+                params.EndTime = $("#dtEndTime").find("input").val();
+                params.KeyWord = $("#txtKeyWord").val();
+                params.UserID = $("#txtUserID").val();
+                params.ClientIP = $("#txtClientIP").val();
+                return params;
+            }
+            $(".table").bootstrapTable("refresh");
+        });
 
     </script>
 }

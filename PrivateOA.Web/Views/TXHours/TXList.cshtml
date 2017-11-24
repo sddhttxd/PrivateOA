@@ -1,0 +1,124 @@
+﻿@using PrivateOA.Common;
+@using PrivateOA.Entity;
+@using System.Configuration;
+@{
+    ViewBag.Title = "TXList";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    CommonEnum.RoleType role = new Utility().GetRoleType(ConfigurationManager.AppSettings["CookieName"]);
+    ViewData["Role"] = role.GetHashCode();
+}
+
+<div class="container">
+    <h2>调休统计</h2>
+    <form class="form-inline" role="form" style="margin-bottom:10px;">
+        <div class="form-group">
+            <label class="control-label">统计条件：</label>
+            <select id="sltStatus" class="form-control" style="width:150px;">
+                <option value="1">按年统计</option>
+                <option value="2">按月统计</option>
+            </select>
+        </div>
+        <div class="form-group">
+            <label class="control-label">年份：</label>
+            <input id="txtYear" type="number" min="2000" class="form-control" style="width:150px;" />
+        </div>
+        <div id="pmMonth">
+            <label class="control-label">月份：</label>
+            <input id="txtMonth" type="number" min="0" max="12" class="form-control" style="width:150px;" />
+        </div>
+        <div id="pmUserId">
+            <label class="control-label">用户ID：</label>
+            <input id="txtUserID" type="number" min="0" class="form-control" style="width:150px;" />
+        </div>
+        <div class="form-group">
+            <button type="button" class="btn btn-info btn-flat" id="btnSearch"><i class="glyphicon glyphicon-search"></i> 查询</button>
+        </div>
+    </form>
+    <table class="table table-hover "></table>
+    <!--[if lt IE 9]>
+        <p style="display:inline-block;font-weight:bold;font-size:16px;"> 您的浏览器(IE8)版本过低这将影响页面速度和美观,请联系运维安装360浏览器或者升级您的IE版本。</p>
+    <![endif]-->
+</div>
+
+@section Scripts {
+    <script src="~/Scripts/jquery-1.10.2.min.js"></script>
+    <script src="~/Scripts/bootstrap-table.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <script src="~/Scripts/privateoa-common.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            $("#txtYear").val(2017);
+            var role = parseInt(@ViewData["Role"]);
+            if (role == 1) {
+                $("#pmUserId").addClass("form-group");
+                $("#pmUserId").removeClass("admin-div");
+            } else {
+                $("#pmUserId").removeClass("form-group");
+                $("#pmUserId").addClass("admin-div");
+                $("#txtUserID").val("");
+            }
+            $("#pmMonth").removeClass("form-group");
+            $("#pmMonth").addClass("admin-div");
+        });
+
+        //条件选择
+        $("#sltStatus").change(function () {
+            if ($("#sltStatus").val() == 1) {
+                $("#pmMonth").removeClass("form-group");
+                $("#pmMonth").addClass("admin-div");
+                $("#txtMonth").val(0);
+            } else if ($("#sltStatus").val() == 2) {
+                $("#pmMonth").addClass("form-group");
+                $("#pmMonth").removeClass("admin-div");
+            }
+        });
+
+        //初始化
+        var table = new Object();
+        table.Params = function (params) {
+            params.UserID = $("#txtUserID").val();
+            params.Year = $("#txtYear").val();
+            params.Month = $("#txtMonth").val();
+            return params;
+        }
+        table.Init = $(".table").bootstrapTable({
+            //title: "调休统计",                  //标题
+            url: 'TXList',                    //请求后台的URL（*）
+            method: 'post',                     //请求方式（*）
+            async: false,                       //ajax请求的时候是同步还是异步。true为异步
+            queryParams: table.Params,          //传递参数（*）
+            pagination: true,                   //是否显示分页（*）
+            sidePagination: "client",           //分页方式：client客户端分页，server服务端分页（*）
+            pageList: [10, 25, 50, 100],        //可供选择的每页的行数（*）
+            //列信息。title为列头，field此列取得数组对象的属性
+            columns: [
+                     { field: 'UserID', title: '用户ID' },
+                     { field: 'Year', title: '年份' },
+                     { field: 'Month', title: '月份' },
+                     { field: 'Hours', title: '调休时长' }
+            ],
+            //表格加载前，可以在此方法里处理一些逻辑
+            onBeforeLoad: function (datagrid) {
+                console.log('开始加载 表格数据');
+            },
+            //ajax请求成功时调用的方法
+            onComplete: function (datagrid) {
+                console.log("数据请求完成！");
+            },
+            //ajax请求失败处理
+            onError: function (datagrid) {
+                console.log("数据请求发生错误！");
+            },
+            //ajax请求成功返回，表格加载完毕后的处理
+            onLoadSuccess: function (obj) {
+                console.log("表格加载成功！");
+            }
+        });
+
+        //查询
+        $("#btnSearch").click(function () {
+            $(".table").bootstrapTable("refresh");
+        });
+
+    </script>
+}

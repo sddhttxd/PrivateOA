@@ -6,114 +6,233 @@
 
 <div class="container">
     <h2>用户列表</h2>
-    <form class="form-horizontal" role="form">
+    <form class="form-inline" role="form">
         <div class="form-group">
-            用户名：<input id="txtUserName" type="text" />
-            姓名：<input id="txtTrueName" type="text" />
-            电话：<input id="txtTellPhone" type="text" />
-            部门：<input id="txtDepartment" type="text" />
-            状态：<input id="sltStatus" type="text" />
+            <label class="control-label">用户名：</label>
+            <input id="txtUserName" type="text" class="form-control" style="width:150px;" />
+        </div>
+        <div class="form-group">
+            <label class="control-label">姓名：</label>
+            <input id="txtTrueName" type="text" class="form-control" style="width:150px;" />
+        </div>
+        <div class="form-group">
+            <label class="control-label">电话：</label>
+            <input id="txtTellPhone" type="text" class="form-control" style="width:150px;" />
+        </div>
+        <div class="form-group">
+            <label class="control-label">部门：</label>
+            <input id="txtDepartment" type="text" class="form-control" style="width:150px;" />
+        </div>
+        <div class="form-group">
+            <label class="control-label">状态：</label>
+            <select id="sltStatus" class="form-control" style="width:150px;">
+                <option value="0">全部</option>
+                <option value="1">有效</option>
+                <option value="2">无效</option>
+            </select>
         </div>
     </form>
-    @*<button type="button" class="btn btn-info btn-flat" id="search"><i class="glyphicon glyphicon-search"></i> 查询</button>*@
-    <table class="table table-striped table-bordered table-hover table-condensed"></table>
+    <table class="table table-hover " data-show-refresh="true" data-show-columns="true"></table>
+    @*table-striped table-bordered table-condensed*@
     <div id="toolbar">
         <button type="button" class="btn btn-info btn-flat" id="btnAdd"><i class="glyphicon glyphicon-plus"></i> 添加</button>
         <button type="button" class="btn btn-info btn-flat" id="btnEdit"><i class="glyphicon glyphicon-edit"></i> 修改</button>
-        <button type="button" class="btn btn-info btn-flat" id="btnDel"><i class="glyphicon glyphicon-remove"></i> 删除</button>
+        <button type="button" class="btn btn-info btn-flat" id="btnDelete"><i class="glyphicon glyphicon-remove"></i> 删除</button>
         <button type="button" class="btn btn-info btn-flat" id="btnSearch"><i class="glyphicon glyphicon-search"></i> 查询</button>
     </div>
     <!--[if lt IE 9]>
         <p style="display:inline-block;font-weight:bold;font-size:16px;"> 您的浏览器(IE8)版本过低这将影响页面速度和美观,请联系运维安装360浏览器或者升级您的IE版本。</p>
     <![endif]-->
 </div>
+<!-- 修改 -->
+<div class="modal" id="EditModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    @Html.Partial("UserEdit")
+</div>
 
 @section Scripts {
     <script src="~/Scripts/jquery-1.10.2.min.js"></script>
     <script src="~/Scripts/bootstrap-table.js"></script>
     <script src="~/Scripts/bootstrap.min.js"></script>
+    <script src="~/Scripts/privateoa-common.js"></script>
     <script type="text/javascript">
-        var user = new Object();
         $(function () {
-            query();
-        });
-        $("#btnSearch").click(function () {
-            user.UserName = $("#txtUserName").val();
-            user.TrueName = $("#txtTrueName").val();
-            user.TellPhone = $("#txtTellPhone").val();
-            user.Department = $("#txtDepartment").val();
-            user.Status = $("#sltStatus").val();
-            query();
+            //table.Init;
         });
 
-        function query() {
-            $(".table").bootstrapTable({
-                //标题
-                title: "用户列表",
-                //是否显示下方的分页
-                pagination: true,
-                //当前页码
-                page: 1,
-                //每页展示的条数
-                rows: 10,
-                //表格数据请求的url
-                url: "UserList",
-                //ajax请求的时候是同步还是异步。true为异步
-                async: false,
-                //请求方式
-                method: 'post',
-                //是否可以自定义展示的列（右上角的表格小图标事件）
-                customColumns: true,
-                //是否展示列标题，即列头
-                showThead: true,
-                //可以附加查询条件。json方式传递
-                qData: user,
-                idField: "id",
-                //工具条
-                toolbar: "#toolbar",
-                //是否显示复选框
-                withCheckbox: true,
-                //是否显示列头的复选框（全选作用）
-                titleCheckbox: true,
-                //记录为空时的提示信息
-                emptyTips: "数据条目为空！",
-                //复选框存在的情况下，最多可以选择几个,1代表单选，只能选择一个。0为不限制
-                selectedNums: 1,
-                //列信息。title为列头，field此列取得数组对象的属性
-                columns: [
-                         {
-                             field: '', title: "序号", formatter: function (value, row, index) {
-                                 return index + 1;
-                             }
-                         },
-                         { field: 'UserID', title: "用户ID" },
-                         { field: 'UserName', title: '用户名', sortable: true },
-                         { field: 'TrueName', title: '姓名', cls: "", sortable: false },
-                         { field: 'TellPhone', title: '电话', cls: "hidemobile" },
-                         { field: 'Department', title: '部门', cls: "hidemobile" },
-                         { field: 'Status', title: '状态', cls: "hidemobile" },
-                         { field: 'AddTime', title: '添加时间', cls: "hidemobile" },
-                         { field: 'ModifiedTime', title: '修改时间', cls: "hidemobile" },
-                         { field: 'Remark', title: '备注', cls: "hidemobile" }
-                ],
-                //表格加载前，可以在此方法里处理一些逻辑
-                onBeforeLoad: function (datagrid) {
-                    console.log('开始加载 表格数据');
-                },
-                //ajax请求成功时调用的方法
-                onComplete: function (datagrid) {
-                    console.log("数据请求完成！");
-                },
-                //ajax请求失败处理
-                onError: function (datagrid) {
-                    console.log("数据请求发生错误！");
-                },
-                //ajax请求成功返回，表格加载完毕后的处理
-                onLoadSuccess: function (obj) {
-                    console.log("表格加载成功！");
-                }
-            })
+        //初始化
+        var table = new Object();
+        table.Params = function (params) {
+            params.UserName = $("#txtUserName").val();
+            params.TrueName = $("#txtTrueName").val();
+            params.TellPhone = $("#txtTellPhone").val();
+            params.Department = $("#txtDepartment").val();
+            params.Status = $("#sltStatus").val();
+            return params;
         }
+        table.Init = $(".table").bootstrapTable({
+            //title: "用户列表",                  //标题
+            url: 'UserList',                    //请求后台的URL（*）
+            method: 'post',                     //请求方式（*）
+            async: false,                       //ajax请求的时候是同步还是异步。true为异步
+            toolbar: '#toolbar',                //工具按钮用哪个容器
+            //striped: true,                      //是否显示行间隔色
+            //cache: false,                       //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
+            //sortable: false,                    //是否启用排序
+            //sortOrder: "asc",                   //排序方式
+            queryParams: table.Params,          //传递参数（*）
+            pagination: true,                   //是否显示分页（*）
+            sidePagination: "client",           //分页方式：client客户端分页，server服务端分页（*）
+            pageList: [10, 25, 50, 100],        //可供选择的每页的行数（*）
+            //pageNumber: 1,                      //初始化加载第一页，默认第一页
+            //pageSize: 10,                       //每页的记录行数（*）
+            //search: true,                       //是否显示表格搜索，此搜索是客户端搜索，不会进服务端，所以，个人感觉意义不大
+            //contentType: "application/x-www-form-urlencoded",
+            //strictSearch: true,
+            //showThead: false,                    //是否展示列标题，即列头
+            //showColumns: true,                  //是否显示所有的列
+            //showRefresh: true,                  //是否显示刷新按钮
+            //minimumCountColumns: 2,             //最少允许的列数
+            //clickToSelect: true,                //是否启用点击选中行
+            //uniqueId: "no",                     //每一行的唯一标识，一般为主键列
+            //showToggle: true,                   //是否显示详细视图和列表视图的切换按钮
+            //cardView: false,                    //是否显示详细视图
+            //detailView: false,                  //是否显示父子表
+            //customColumns: true,                //是否可以自定义展示的列（右上角的表格小图标事件）
+            //withCheckbox: true,                 //是否显示复选框
+            //titleCheckbox: true,                //是否显示列头的复选框（全选作用）
+            //emptyTips: "数据条目为空！",        //记录为空时的提示信息
+            //selectedNums: 1,                    //复选框存在的情况下，最多可以选择几个,1代表单选，只能选择一个。0为不限制
+            //singleSelect: true,                 //是否单选
+            //列信息。title为列头，field此列取得数组对象的属性
+            columns: [
+                     { field: '', title: '', width: 20, checkbox: true },
+                     { field: 'UserID', title: '用户ID', hidden: true },
+                     { field: 'UserName', title: '用户名', sortable: true },
+                     { field: 'TrueName', title: '姓名', sortable: true },
+                     { field: 'TellPhone', title: '电话' },
+                     { field: 'Department', title: '部门' },
+                     { field: 'Role', title: '角色', formatter: function (value, row, index) { return getRole(value); } },
+                     { field: 'Status', title: '状态', formatter: function (value, row, index) { return getStatus(value); } },
+                     { field: 'AddTime', title: '添加时间', sortable: true, formatter: function (value, row, index) { return getDate(value); } },
+                     { field: 'ModifiedTime', title: '修改时间', sortable: true, formatter: function (value, row, index) { return getDate(value); } },
+                     { field: 'Remark', title: '备注' }
+            ],
+            //表格加载前，可以在此方法里处理一些逻辑
+            onBeforeLoad: function (datagrid) {
+                console.log('开始加载 表格数据');
+            },
+            //ajax请求成功时调用的方法
+            onComplete: function (datagrid) {
+                console.log("数据请求完成！");
+            },
+            //ajax请求失败处理
+            onError: function (datagrid) {
+                console.log("数据请求发生错误！");
+            },
+            //ajax请求成功返回，表格加载完毕后的处理
+            onLoadSuccess: function (obj) {
+                console.log("表格加载成功！");
+            }
+        });
+
+        //详情
+        $("#btnDetail").click(function () {
+            var selectedRow = $(".table").bootstrapTable('getSelections');
+            if (selectedRow.length >= 1) {
+                var userid = parseInt(selectedRow[0].UserID);
+                window.location = "/User/UserDetail?userid=" + userid;
+            } else {
+                alert("请选择用户！");
+            }
+        });
+
+        //添加
+        $("#btnAdd").click(function () {
+            window.location = "/User/UserRegist";
+        });
+
+        //查询
+        $("#btnSearch").click(function () {
+            $(".table").bootstrapTable("refresh");
+        });
+
+        //修改
+        $("#btnEdit").click(function () {
+            var selectedRow = $(".table").bootstrapTable('getSelections');
+            if (selectedRow.length >= 1) {
+                $('#EditModal').modal('show');
+                $("#edit_txtUserName").val(selectedRow[0].UserName);
+                $("#edit_txtTrueName").val(selectedRow[0].TrueName);
+                $("#edit_txtPassword").val(selectedRow[0].PassWord);
+                $("#edit_txtConfirmPwd").val(selectedRow[0].PassWord);
+                $("#edit_txtTellPhone").val(selectedRow[0].TellPhone);
+                $("#edit_txtDepartment").val(selectedRow[0].Department);
+                $("#edit_sltRole").val(selectedRow[0].Role);
+                $("#edit_sltStatus").val(selectedRow[0].Status);
+                $("#edit_txtRemark").val(selectedRow[0].Remark);
+            } else {
+                alert("请选择用户！");
+            }
+        });
+
+        //提交修改
+        $("#btnSubmit").click(function () {
+            var selectedRow = $(".table").bootstrapTable('getSelections');
+            if (selectedRow.length >= 1) {
+                var user = new Object();
+                user.userid = parseInt(selectedRow[0].UserID);
+                user.username = $("#edit_txtUserName").val();
+                user.truename = $("#edit_txtTrueName").val();
+                user.password = $("#edit_txtPassword").val();
+                user.confirmpwd = $("#edit_txtConfirmPwd").val();
+                user.tellphone = $("#edit_txtTellPhone").val();
+                user.department = $("#edit_txtDepartment").val();
+                user.role = $("#edit_sltRole").val();
+                user.status = $("#edit_sltStatus").val();
+                user.remark = $("#edit_txtRemark").val();
+                $.ajax({
+                    cache: true,
+                    type: "POST",
+                    url: "UserEdit",
+                    data: user,
+                    async: false,
+                    error: function (request) {
+                        alert("error");
+                    },
+                    success: function (data) {
+                        //alert("success");
+                        $('#EditModal').modal('hide');
+                        $(".table").bootstrapTable("refresh");
+                    }
+                });
+            }
+        });
+
+        //删除
+        $("#btnDelete").click(function () {
+            var selectedRow = $(".table").bootstrapTable('getSelections');
+            if (selectedRow.length >= 1) {
+                var user = new Object();
+                user.userid = parseInt(selectedRow[0].UserID);
+                $.ajax({
+                    cache: true,
+                    type: "POST",
+                    url: "UserDelete",
+                    data: user,
+                    async: false,
+                    error: function (request) {
+                        alert("error");
+                    },
+                    success: function (data) {
+                        //alert("success");
+                        $(".table").bootstrapTable("refresh");
+                    }
+                });
+            } else {
+                alert("请选择用户！");
+            }
+        });
+
     </script>
 }
 

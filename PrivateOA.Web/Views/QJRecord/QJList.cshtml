@@ -2,14 +2,14 @@
 @using PrivateOA.Entity;
 @using System.Configuration;
 @{
-    ViewBag.Title = "JBList";
+    ViewBag.Title = "QJList";
     Layout = "~/Views/Shared/_Layout.cshtml";
     CommonEnum.RoleType role = new Utility().GetRoleType(ConfigurationManager.AppSettings["CookieName"]);
     ViewData["Role"] = role.GetHashCode();
 }
 
 <div class="container">
-    <h2>加班记录</h2>
+    <h2>请假记录</h2>
     <form class="form-inline" role="form">
         <div id="pmUserId">
             <label class="control-label">用户ID：</label>
@@ -24,7 +24,7 @@
                 <input id="txtMonth" type="text" class="form-control" style="width:100px;" />
             </div>*@
         <div class="form-group">
-            <label class="control-label">加班时间：</label>
+            <label class="control-label">请假时间：</label>
             <div class='input-group date' id='dtStartTime' style="width:200px;">
                 <input type='text' class="form-control" />
                 <span class="input-group-addon">
@@ -39,7 +39,7 @@
             </div>
         </div>
         <div class="form-group">
-            <label class="control-label">加班内容：</label>
+            <label class="control-label">请假内容：</label>
             <input id="txtRemark" type="text" class="form-control" style="width:200px;" />
         </div>
     </form>
@@ -61,7 +61,7 @@
         <div class="modal-content">
             <div class="modal-header">
                 <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
-                <h4 class="modal-title" id="myModalLabel">添加加班记录</h4>
+                <h4 class="modal-title" id="myModalLabel">添加请假记录</h4>
             </div>
             <div class="modal-body">
                 <form id="loginform" class="form-horizontal" role="form">
@@ -84,13 +84,13 @@
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="firstname" class="col-sm-3 control-label">加班时长：</label>
+                        <label for="firstname" class="col-sm-3 control-label">请假时长：</label>
                         <div class="col-sm-6">
                             <input id="add_txtHours" class="form-control" type="text" />
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="firstname" class="col-sm-3 control-label">加班内容：</label>
+                        <label for="firstname" class="col-sm-3 control-label">请假内容：</label>
                         <div class="col-sm-6">
                             <input id="add_txtRemark" class="form-control" type="text" />
                         </div>
@@ -118,7 +118,7 @@
             var role = parseInt(@ViewData["Role"]);
             if (role == 1) {
                 $("#pmUserId").addClass("form-group");
-                $("#pmUserId").removeClass("admin-div"); 
+                $("#pmUserId").removeClass("admin-div");
             } else {
                 $("#pmUserId").removeClass("form-group");
                 $("#pmUserId").addClass("admin-div");
@@ -154,8 +154,8 @@
             return params;
         }
         table.Init = $(".table").bootstrapTable({
-            //title: "加班记录",                  //标题
-            url: 'JBList',                    //请求后台的URL（*）
+            //title: "请假记录",                  //标题
+            url: 'QJList',                    //请求后台的URL（*）
             method: 'post',                     //请求方式（*）
             async: false,                       //ajax请求的时候是同步还是异步。true为异步
             toolbar: '#toolbar',                //工具按钮用哪个容器
@@ -166,7 +166,7 @@
             //列信息。title为列头，field此列取得数组对象的属性
             columns: [
                      { field: '', title: '', width: 20, checkbox: true },
-                     { field: 'JID', title: '记录ID', hidden: true },
+                     { field: 'QID', title: '记录ID', hidden: true },
                      { field: 'UserID', title: '用户ID', sortable: true },
                      //{ field: 'Year', title: '年份', sortable: true },
                      //{ field: 'Month', title: '月份', sortable: true },
@@ -178,7 +178,7 @@
                          field: 'ETime', title: '结束时间', sortable: true, formatter:
                            function (value, row, index) { return getDate(value); }
                      },
-                     { field: 'Hours', title: '加班时长' },
+                     { field: 'Hours', title: '请假时长' },
                      { field: 'Remark', title: '工作内容', },
                      {
                          field: 'AddTime', title: '添加时间', sortable: true, formatter:
@@ -237,11 +237,11 @@
             data.Remark = $("#add_txtRemark").val();
             var action = "";
             if (actionFlag == "add") {
-                action = "AddJB";
+                action = "AddQJ";
             } else if (actionFlag == "edit") {
-                action = "EditJB";
+                action = "EditQJ";
                 var selectedRow = $(".table").bootstrapTable('getSelections');
-                data.JID = selectedRow[0].JID;
+                data.QID = selectedRow[0].QID;
             } else {
                 return;
             }
@@ -271,11 +271,11 @@
             var selectedRow = $(".table").bootstrapTable('getSelections');
             if (selectedRow.length >= 1) {
                 var data = new Object();
-                data.JID = selectedRow[0].JID;
+                data.QID = selectedRow[0].QID;
                 $.ajax({
                     cache: true,
                     type: "POST",
-                    url: "DeleteJB",
+                    url: "DeleteQJ",
                     data: data,
                     async: false,
                     error: function (request) {

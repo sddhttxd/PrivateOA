@@ -8,34 +8,34 @@ using static PrivateOA.Entity.CommonEnum;
 namespace PrivateOA.Entity
 {
     /// <summary>
-    /// 日志查询
+    /// 操作日志
     /// </summary>
-    public class LogQuery
+    public class ActionLog
     {
+        /// <summary>
+        /// 自增主键
+        /// </summary>
+        public int RID { set; get; }
         /// <summary>
         /// 日志类型
         /// </summary>
-        public int Type { set; get; }
+        public LogType Type { set; get; }
         /// <summary>
-        /// 起始时间
+        /// 日志内容
         /// </summary>
-        public DateTime? StartTime { set; get; }
+        public string Content { set; get; }
         /// <summary>
-        /// 截止时间
+        /// 日志时间
         /// </summary>
-        public DateTime? EndTime { set; get; }
+        public DateTime LogTime { set; get; }
         /// <summary>
         /// Key值
         /// </summary>
         public string KeyValue { set; get; }
         /// <summary>
-        /// 关键字
-        /// </summary>
-        public string KeyWord { set; get; }
-        /// <summary>
         /// 操作用户
         /// </summary>
-        public int? UserID { set; get; }
+        public int UserID { set; get; }
         /// <summary>
         /// 客户端IP
         /// </summary>
