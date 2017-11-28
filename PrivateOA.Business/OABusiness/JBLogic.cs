@@ -207,8 +207,15 @@ namespace PrivateOA.Business
                         query = query.Where(o => o.Remark.Contains(model.RemarkKey));
                     }
                     response.Result = query.OrderByDescending(o => o.ModifiedTime).ToList();
-                    if (response.Result != null && response.Result.Count > 0) { response.IsSuccess = true; }
-                    log.AddLog(LogType.Info, "GetJBRecordList,查询加班成功：" + JsonConvert.SerializeObject(response), request.RequestKey);
+                    if (response.Result != null && response.Result.Count > 0)
+                    {
+                        response.IsSuccess = true;
+                    }
+                    else
+                    {
+                        response.ErrorMsg = "没有数据！";
+                    }
+                    log.AddLog(LogType.Info, "GetJBRecordList,查询结果：" + JsonConvert.SerializeObject(response), request.RequestKey);
                 }
             }
             catch (Exception ex)

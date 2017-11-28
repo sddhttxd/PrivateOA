@@ -241,8 +241,15 @@ namespace PrivateOA.Business
                     }
                     #endregion
                 }
-                if (response.Result != null && response.Result.Count > 0) { response.IsSuccess = true; }
-                log.AddLog(LogType.Info, "GetHours,获取调休列表成功：" + JsonConvert.SerializeObject(response), key);
+                if (response.Result != null && response.Result.Count > 0)
+                {
+                    response.IsSuccess = true;
+                }
+                else
+                {
+                    response.ErrorMsg = "没有数据！";
+                }
+                log.AddLog(LogType.Info, "GetHours,查询结果：" + JsonConvert.SerializeObject(response), key);
             }
             catch (Exception ex)
             {

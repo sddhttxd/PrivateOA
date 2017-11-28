@@ -1,13 +1,13 @@
 ﻿
 @{
-    ViewBag.Title = "LogList";
+    ViewBag.Title = "日志列表";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 
 <div class="container">
-    <h2>日志列表</h2>
-    <form class="form-inline" role="form" style="margin-bottom:10px;">
+    @*<h2>日志列表</h2>*@
+    <form class="form-inline" role="form" style="margin-top:10px;margin-bottom:10px;">
         <div style="margin-bottom:10px;">
             <div class="form-group">
                 <label class="control-label">日志类型：</label>
@@ -54,7 +54,19 @@
             </div>
         </div>
     </form>
-    <table class="table table-hover "></table>
+    <table class="table table-hover ">
+        @*<thead>
+                <tr>
+                    <th data-field="RID" hidden="hidden">RID</th>
+                    <th data-field="Type">日志类型</th>
+                    <th data-field="KeyValue">Key值</th>
+                    <th data-field="LogTime">记录时间</th>
+                    <th data-field="Content">日志内容</th>
+                    <th data-field="UserID">用户ID</th>
+                    <th data-field="ClientIP">客户端IP</th>
+                </tr>
+            </thead>*@
+    </table>
     @*<div id="toolbar">
             <button type="button" class="btn btn-info btn-flat" id="btnSearch"><i class="glyphicon glyphicon-search"></i> 查询</button>
         </div>*@
@@ -69,6 +81,7 @@
     <script src="~/Scripts/moment-with-locales.min.js"></script>
     <script src="~/Scripts/bootstrap-datetimepicker.min.js"></script>
     <script src="~/Scripts/bootstrap-table.js"></script>
+    <script src="~/Scripts/bootstrap-table-zh-CN.js"></script>
     <script src="~/Scripts/bootstrap.min.js"></script>
     <script src="~/Scripts/privateoa-common.js"></script>
     <script type="text/javascript">
@@ -85,29 +98,36 @@
 
         //初始化
         var table = new Object();
-        table.Params = function (params) {
-            params.Type = $("sltLogType").val();
-            params.KeyValue = $("#txtKeyValue").val();
-            params.StartTime = $("#dtStartTime").find("input").val();
-            params.EndTime = $("#dtEndTime").find("input").val();
-            params.KeyWord = $("#txtKeyWord").val();
-            params.UserID = $("#txtUserID").val();
-            params.ClientIP = $("#txtClientIP").val();
-            return params;
-        }
         table.Init = $(".table").bootstrapTable({
             title: "日志列表",                  //标题
             url: 'LogList',                    //请求后台的URL（*）
             method: 'post',                     //请求方式（*）
             async: false,                       //ajax请求的时候是同步还是异步。true为异步
             //toolbar: '#toolbar',                //工具按钮用哪个容器
-            queryParams: table.Params,          //传递参数（*）
             pagination: true,                   //是否显示分页（*）
-            sidePagination: "client",           //分页方式：client客户端分页，server服务端分页（*）
+            sidePagination: "server",           //分页方式：client客户端分页，server服务端分页（*）
+            pageNumber: 1,                      //初始化加载第一页，默认第一页
+            pageSize: 10,                       //每页的记录行数（*）
             pageList: [10, 25, 50, 100],        //可供选择的每页的行数（*）
+            queryParamsType: "limit",
+            //queryParams: table.queryParams,          //传递参数（*）
+            queryParams: function (params) {
+                var paramObj = {
+                    type: $("#sltLogType").val(),
+                    keyvalue: $("#txtKeyValue").val(),
+                    starttime: $("#dtStartTime").find("input").val(),
+                    endtime: $("#dtEndTime").find("input").val(),
+                    keyword: $("#txtKeyWord").val(),
+                    userid: $("#txtUserID").val(),
+                    clientip: $("#txtClientIP").val(),
+                    pagesize: params.limit,
+                    pageindex: params.offset / 10 + 1
+                };
+                return paramObj;
+            },          //传递参数（*）
             //列信息。title为列头，field此列取得数组对象的属性
             columns: [
-                     { field: 'RID', title: '日志ID', hidden: true },
+                     { field: 'RID', title: '日志ID', },//visible: false
                      { field: 'Type', title: '类型' },
                      { field: 'KeyValue', title: 'Key值' },
                      { field: 'LogTime', title: '时间', sortable: true, formatter: function (value, row, index) { return getDate(value); } },
@@ -130,21 +150,27 @@
             //ajax请求成功返回，表格加载完毕后的处理
             onLoadSuccess: function (obj) {
                 console.log("表格加载成功！");
+                //table.totalRows = parseInt(obj.TotalCount);
             }
         });
+        ////参数
+        //table.queryParams = function (params) {
+        //    var paramObj = {
+        //        type: $("#sltLogType").val(),
+        //        keyvalue: $("#txtKeyValue").val(),
+        //        starttime: $("#dtStartTime").find("input").val(),
+        //        endtime: $("#dtEndTime").find("input").val(),
+        //        keyword: $("#txtKeyWord").val(),
+        //        userid: $("#txtUserID").val(),
+        //        clientip: $("#txtClientIP").val(),
+        //        pagesize: params.limit,
+        //        pageindex: params.offset / 10 + 1
+        //    };
+        //    return paramObj;
+        //}
 
         //查询
         $("#btnSearch").click(function () {
-            table.Params = function (params) {
-                params.Type = $("sltLogType").val();
-                params.KeyValue = $("#txtKeyValue").val();
-                params.StartTime = $("#dtStartTime").find("input").val();
-                params.EndTime = $("#dtEndTime").find("input").val();
-                params.KeyWord = $("#txtKeyWord").val();
-                params.UserID = $("#txtUserID").val();
-                params.ClientIP = $("#txtClientIP").val();
-                return params;
-            }
             $(".table").bootstrapTable("refresh");
         });
 

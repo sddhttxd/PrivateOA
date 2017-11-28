@@ -37,7 +37,9 @@ namespace PrivateOA.Web.Controllers
                     request.RequsetTime = DateTime.Now;
                     response = logic.GetLogList(request);
                 }
-                return Json(new { data = response.Result });
+                //return Json(new { data = response.Result });
+                //return Json(response);
+                return Json(new { rows = response.Result, total = response.TotalCount });
             }
             return View();
         }

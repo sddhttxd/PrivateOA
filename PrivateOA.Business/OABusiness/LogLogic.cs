@@ -88,7 +88,11 @@ namespace PrivateOA.Business
                     {
                         query = query.Where(o => o.ClientIP == log.ClientIP);
                     }
-                    response.Result = query.OrderByDescending(o => o.LogTime).ToList();
+                    response.TotalCount = query.Count();
+                    int pageIndex = log.PageIndex <= 0 ? 1 : log.PageIndex;
+                    int pageSize = log.PageSize <= 0 ? 10 : log.PageSize;
+                    response.Result = query.OrderByDescending(o => o.LogTime).Skip((pageIndex - 1) * pageSize).Take(pageSize).ToList();
+                    //response.Result = query.OrderByDescending(o => o.LogTime).ToList();
                     if (response.Result != null && response.Result.Count > 0)
                     {
                         response.IsSuccess = true;

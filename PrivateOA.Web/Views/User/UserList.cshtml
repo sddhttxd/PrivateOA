@@ -1,12 +1,12 @@
 ﻿
 @{
-    ViewBag.Title = "UserList";
+    ViewBag.Title = "用户列表";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <div class="container">
-    <h2>用户列表</h2>
-    <form class="form-inline" role="form">
+    @*<h2>用户列表</h2>*@
+    <form class="form-inline" role="form" style="margin-top:10px;">
         <div class="form-group">
             <label class="control-label">用户名：</label>
             <input id="txtUserName" type="text" class="form-control" style="width:150px;" />
@@ -52,6 +52,7 @@
 @section Scripts {
     <script src="~/Scripts/jquery-1.10.2.min.js"></script>
     <script src="~/Scripts/bootstrap-table.js"></script>
+    <script src="~/Scripts/bootstrap-table-zh-CN.js"></script>
     <script src="~/Scripts/bootstrap.min.js"></script>
     <script src="~/Scripts/privateoa-common.js"></script>
     <script type="text/javascript">
@@ -106,7 +107,7 @@
             //列信息。title为列头，field此列取得数组对象的属性
             columns: [
                      { field: '', title: '', width: 20, checkbox: true },
-                     { field: 'UserID', title: '用户ID', hidden: true },
+                     { field: 'UserID', title: '用户ID', visible: false },
                      { field: 'UserName', title: '用户名', sortable: true },
                      { field: 'TrueName', title: '姓名', sortable: true },
                      { field: 'TellPhone', title: '电话' },

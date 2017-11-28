@@ -2,15 +2,15 @@
 @using PrivateOA.Entity;
 @using System.Configuration;
 @{
-    ViewBag.Title = "TXList";
+    ViewBag.Title = "调休统计";
     Layout = "~/Views/Shared/_Layout.cshtml";
     CommonEnum.RoleType role = new Utility().GetRoleType(ConfigurationManager.AppSettings["CookieName"]);
     ViewData["Role"] = role.GetHashCode();
 }
 
 <div class="container">
-    <h2>调休统计</h2>
-    <form class="form-inline" role="form" style="margin-bottom:10px;">
+    @*<h2>调休统计</h2>*@
+    <form class="form-inline" role="form" style="margin-top:10px;margin-bottom:10px;">
         <div class="form-group">
             <label class="control-label">统计条件：</label>
             <select id="sltStatus" class="form-control" style="width:150px;">
@@ -43,11 +43,14 @@
 @section Scripts {
     <script src="~/Scripts/jquery-1.10.2.min.js"></script>
     <script src="~/Scripts/bootstrap-table.js"></script>
+    <script src="~/Scripts/bootstrap-table-zh-CN.js"></script>
     <script src="~/Scripts/bootstrap.min.js"></script>
     <script src="~/Scripts/privateoa-common.js"></script>
     <script type="text/javascript">
         $(function () {
-            $("#txtYear").val(2017);
+            var date = new Date();
+            var year = date.getFullYear();
+            $("#txtYear").val(year);
             var role = parseInt(@ViewData["Role"]);
             if (role == 1) {
                 $("#pmUserId").addClass("form-group");
@@ -59,6 +62,9 @@
             }
             $("#pmMonth").removeClass("form-group");
             $("#pmMonth").addClass("admin-div");
+
+            var oTable = new tableInit();
+            oTable.Init();
         });
 
         //条件选择
@@ -74,47 +80,51 @@
         });
 
         //初始化
-        var table = new Object();
-        table.Params = function (params) {
-            params.UserID = $("#txtUserID").val();
-            params.Year = $("#txtYear").val();
-            params.Month = $("#txtMonth").val();
-            return params;
-        }
-        table.Init = $(".table").bootstrapTable({
-            //title: "调休统计",                  //标题
-            url: 'TXList',                    //请求后台的URL（*）
-            method: 'post',                     //请求方式（*）
-            async: false,                       //ajax请求的时候是同步还是异步。true为异步
-            queryParams: table.Params,          //传递参数（*）
-            pagination: true,                   //是否显示分页（*）
-            sidePagination: "client",           //分页方式：client客户端分页，server服务端分页（*）
-            pageList: [10, 25, 50, 100],        //可供选择的每页的行数（*）
-            //列信息。title为列头，field此列取得数组对象的属性
-            columns: [
-                     { field: 'UserID', title: '用户ID' },
-                     { field: 'Year', title: '年份' },
-                     { field: 'Month', title: '月份' },
-                     { field: 'Hours', title: '调休时长' }
-            ],
-            //表格加载前，可以在此方法里处理一些逻辑
-            onBeforeLoad: function (datagrid) {
-                console.log('开始加载 表格数据');
-            },
-            //ajax请求成功时调用的方法
-            onComplete: function (datagrid) {
-                console.log("数据请求完成！");
-            },
-            //ajax请求失败处理
-            onError: function (datagrid) {
-                console.log("数据请求发生错误！");
-            },
-            //ajax请求成功返回，表格加载完毕后的处理
-            onLoadSuccess: function (obj) {
-                console.log("表格加载成功！");
+        var tableInit = function () {
+            var table = new Object();
+            table.Params = function (params) {
+                params.UserID = $("#txtUserID").val();
+                params.Year = $("#txtYear").val();
+                params.Month = $("#txtMonth").val();
+                return params;
             }
-        });
-
+            table.Init = function () {
+                $(".table").bootstrapTable({
+                    //title: "调休统计",                  //标题
+                    url: 'TXList',                    //请求后台的URL（*）
+                    method: 'post',                     //请求方式（*）
+                    async: false,                       //ajax请求的时候是同步还是异步。true为异步
+                    queryParams: table.Params,          //传递参数（*）
+                    pagination: true,                   //是否显示分页（*）
+                    sidePagination: "client",           //分页方式：client客户端分页，server服务端分页（*）
+                    pageList: [10, 25, 50, 100],        //可供选择的每页的行数（*）
+                    //列信息。title为列头，field此列取得数组对象的属性
+                    columns: [
+                             { field: 'UserID', title: '用户ID' },
+                             { field: 'Year', title: '年份' },
+                             { field: 'Month', title: '月份' },
+                             { field: 'Hours', title: '调休时长' }
+                    ],
+                    //表格加载前，可以在此方法里处理一些逻辑
+                    onBeforeLoad: function (datagrid) {
+                        console.log('开始加载 表格数据');
+                    },
+                    //ajax请求成功时调用的方法
+                    onComplete: function (datagrid) {
+                        console.log("数据请求完成！");
+                    },
+                    //ajax请求失败处理
+                    onError: function (datagrid) {
+                        console.log("数据请求发生错误！");
+                    },
+                    //ajax请求成功返回，表格加载完毕后的处理
+                    onLoadSuccess: function (obj) {
+                        console.log("表格加载成功！");
+                    }
+                });
+            }
+            return table;
+        }
         //查询
         $("#btnSearch").click(function () {
             $(".table").bootstrapTable("refresh");

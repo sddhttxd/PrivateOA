@@ -29,5 +29,9 @@ namespace PrivateOA.Entity
         /// 请求结果
         /// </summary>
         public T Result { get; set; }
+        /// <summary>
+        /// 总条数
+        /// </summary>
+        public int TotalCount { get; set; }
     }
 }

@@ -10,7 +10,7 @@ namespace PrivateOA.Entity
     /// <summary>
     /// 日志查询
     /// </summary>
-    public class LogQuery
+    public class LogQuery: PageParams
     {
         /// <summary>
         /// 日志类型

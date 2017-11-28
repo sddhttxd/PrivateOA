@@ -1,8 +1,12 @@
-﻿
+﻿@using PrivateOA.Common;
+@using PrivateOA.Entity;
+@using System.Configuration;
 @{
-    ViewBag.Title = "UserDetail";
+    ViewBag.Title = "用户信息";
     Layout = "~/Views/Shared/_Layout.cshtml";
-    int userid = Convert.ToInt32(ViewData["UserID"].ToString());
+    User user = new Utility().GetCookie(ConfigurationManager.AppSettings["CookieName"]);
+    //int userid = Convert.ToInt32(ViewData["UserID"].ToString());
+    int userid = user.UserID;
 }
 
 

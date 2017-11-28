@@ -31,4 +31,5 @@ namespace PrivateOA.Entity
         /// </summary>
         public T Data { get; set; }
     }
+
 }
