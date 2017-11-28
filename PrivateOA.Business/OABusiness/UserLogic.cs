@@ -127,6 +127,7 @@ namespace PrivateOA.Business
                     user.TellPhone = data.TellPhone;
                     user.Department = data.Department;
                     user.Status = data.Status;
+                    user.Role = data.Role;
                     user.Remark = data.Remark;
                     user.ModifiedTime = DateTime.Now;
                     dbContext.Entry(user).State = EntityState.Modified;

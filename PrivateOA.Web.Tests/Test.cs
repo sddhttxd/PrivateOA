@@ -22,7 +22,7 @@ namespace PrivateOA.Web.Tests
         [TestMethod]
         public void UpdateDBToLast()
         {
-            Initialization.UpdateDBToLast();
+            var result = Initialization.UpdateDBToLast();
         }
 
         #region [User]

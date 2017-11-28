@@ -1,4 +1,6 @@
-﻿
+﻿//提示框
+
+
 //时间戳转换时间
 function getDate(dateStr) {
     var date = "";
@@ -34,6 +36,18 @@ function getRole(value) {
             return "管理员";
         case 2:
             return "用户";
+        default:
+            return value;
+    }
+}
+
+//日志类型
+function getLogType(value) {
+    switch (value) {
+        case 1:
+            return "业务";
+        case 2:
+            return "错误";
         default:
             return value;
     }

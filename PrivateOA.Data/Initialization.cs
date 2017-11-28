@@ -23,8 +23,9 @@ namespace PrivateOA.Data
         /// <summary>
         /// 更新数据库
         /// </summary>
-        public static void UpdateDBToLast()
+        public static bool UpdateDBToLast()
         {
+            bool result = false;
             try
             {
                 var m = new System.Data.Entity.Migrations.DbMigrator(new Configuration()
@@ -32,11 +33,14 @@ namespace PrivateOA.Data
                     TargetDatabase = new System.Data.Entity.Infrastructure.DbConnectionInfo(ConnectionString.connectionString, "System.Data.SqlClient")
                 });
                 m.Update();
+                result = true;
             }
             catch (Exception ex)
             {
+                result = false;
                 throw ex;
             }
+            return result;
         }
     }
 }

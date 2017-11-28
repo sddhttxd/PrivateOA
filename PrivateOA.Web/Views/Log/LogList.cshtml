@@ -127,8 +127,8 @@
             },          //传递参数（*）
             //列信息。title为列头，field此列取得数组对象的属性
             columns: [
-                     { field: 'RID', title: '日志ID', },//visible: false
-                     { field: 'Type', title: '类型' },
+                     { field: 'RID', title: '日志ID', visible: false },//
+                     { field: 'Type', title: '类型', formatter: function (value, row, index) { return getLogType(value); } },
                      { field: 'KeyValue', title: 'Key值' },
                      { field: 'LogTime', title: '时间', sortable: true, formatter: function (value, row, index) { return getDate(value); } },
                      { field: 'Content', title: '内容' },
