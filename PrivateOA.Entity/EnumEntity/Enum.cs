@@ -81,5 +81,18 @@ namespace PrivateOA.Entity
             [Description("请假")]
             QingJia = 2
         }
+
+        /// <summary>
+        /// 请假类型(0:全部;1:调休;2:事假)
+        /// </summary>
+        public enum LeaveType
+        {
+            [Description("全部")]
+            All = 0,
+            [Description("调休")]
+            Rest = 1,
+            [Description("事假")]
+            Leave = 2,
+        }
     }
 }

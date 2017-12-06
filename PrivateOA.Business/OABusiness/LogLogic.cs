@@ -20,6 +20,8 @@ namespace PrivateOA.Business
         private readonly PrivateOADBContext dbContext = new PrivateOADBContext();
         private readonly Utility utility = new Utility();
 
+        private delegate void AddLogHandler(LogType type, string content, string key, string ip);
+
         /// <summary>
         /// 添加日志
         /// </summary>
@@ -30,13 +32,33 @@ namespace PrivateOA.Business
         {
             try
             {
+                string clientIP = utility.GetClientIP();
+                AddLogHandler handler = new AddLogHandler(AddLogAsyn);
+                IAsyncResult res = handler.BeginInvoke(type, content, keyValue, clientIP, null, null);
+            }
+            catch (Exception ex)
+            {
+                throw ex;
+            }
+        }
+
+        /// <summary>
+        /// 添加日志
+        /// </summary>
+        /// <param name="type">日志类型</param>
+        /// <param name="content">日志内容</param>
+        /// <param name="guid">Key值</param>
+        public void AddLogAsyn(LogType type, string content, string keyValue, string clientIP)
+        {
+            try
+            {
                 ActionLog log = new ActionLog();
                 log.Type = type;
                 log.Content = content;
                 log.KeyValue = keyValue;
                 log.LogTime = DateTime.Now;
                 log.UserID = utility.GetUserID(ConfigurationManager.AppSettings["CookieName"]);
-                log.ClientIP = utility.GetClientIP();
+                log.ClientIP = clientIP;
                 dbContext.ActionLogs.Add(log);
                 dbContext.SaveChanges();
             }

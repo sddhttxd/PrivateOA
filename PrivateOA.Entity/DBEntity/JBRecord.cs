@@ -38,7 +38,7 @@ namespace PrivateOA.Entity
         /// <summary>
         /// 加班时长
         /// </summary>
-        public int Hours { get; set; }
+        public double Hours { get; set; }
         /// <summary>
         /// 备注
         /// </summary>

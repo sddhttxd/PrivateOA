@@ -11,6 +11,14 @@
 <div class="container">
     @*<h2>请假记录</h2>*@
     <form class="form-inline" role="form" style="margin-top:10px;">
+        <div class="form-group">
+            <label class="control-label">请假类型：</label>
+            <select id="sltLeaveType" class="form-control" style="width:100px;">
+                <option value="0">全部</option>
+                <option value="1">调休</option>
+                <option value="2">事假</option>
+            </select>
+        </div>
         <div id="pmUserId">
             <label class="control-label">用户ID：</label>
             <input id="txtUserID" type="text" class="form-control" style="width:100px;" />
@@ -43,7 +51,7 @@
             <input id="txtRemark" type="text" class="form-control" style="width:200px;" />
         </div>
     </form>
-    <table class="table table-hover " data-show-refresh="true" data-show-columns="true"></table>
+    <table class="table table-hover "></table>
     <div id="toolbar">
         <button type="button" class="btn btn-info btn-flat" id="btnAdd"><i class="glyphicon glyphicon-plus"></i> 添加</button>
         <button type="button" class="btn btn-info btn-flat" id="btnEdit"><i class="glyphicon glyphicon-edit"></i> 修改</button>
@@ -107,9 +115,10 @@
 
 @section Scripts {
     <script src="~/Scripts/jquery-1.10.2.min.js"></script>
+    <script src="~/Scripts/bootstrap.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
     <script src="~/Scripts/bootstrap-table.js"></script>
     <script src="~/Scripts/bootstrap-table-zh-CN.js"></script>
-    <script src="~/Scripts/bootstrap.min.js"></script>
     <script src="~/Scripts/moment-with-locales.min.js"></script>
     <script src="~/Scripts/bootstrap-datetimepicker.min.js"></script>
     <script src="~/Scripts/privateoa-common.js"></script>
@@ -141,72 +150,102 @@
                 format: 'YYYY-MM-DD HH:mm',
                 locale: moment.locale('zh-cn')
             });
+
+            var userid=@ViewData["UserID"];
+            var year = @ViewData["Year"];
+            var month = @ViewData["Month"];
+            if(userid!=0){$("#txtUserID").val(userid);}
+            if(year!=0&&month==0){
+                $("#dtStartTime").find("input").val(year+"-01-01 00:00:00");
+                $("#dtEndTime").find("input").val(year+"-12-31 23:59:59");
+            }
+            if(year!=0&&month!=0){
+                $("#dtStartTime").find("input").val(year+"-"+month+"-01 00:00:00");
+                if(month==1||month==3||month==5||month==7||month==8||month==10||month==12){
+                    $("#dtEndTime").find("input").val(year+"-"+month+"-31 23:59:59");
+                }else if(month==4||month==6||month==9||month==11){
+                    $("#dtEndTime").find("input").val(year+"-"+month+"-30 23:59:59");
+                }else if(month==2&&(year%4==0||year%400==0)){
+                    $("#dtEndTime").find("input").val(year+"-"+month+"-29 23:59:59");
+                }else if(month==2&&year%4!=00&&year%400!=0){
+                    $("#dtEndTime").find("input").val(year+"-"+month+"-28 23:59:59");
+                }
+            }
+            var oTable = new tableInit();
+            oTable.Init();
         });
 
         //初始化
-        var table = new Object();
-        table.Params = function (params) {
-            params.UserID = $("#txtUserID").val();
-            //params.Year = $("#txtYear").val();
-            //params.Month = $("#txtMonth").val();
-            params.STime = $("#dtStartTime").find("input").val();
-            params.ETime = $("#dtEndTime").find("input").val();
-            params.Remark = $("#txtRemark").val();
-            return params;
-        }
-        table.Init = $(".table").bootstrapTable({
-            //title: "请假记录",                  //标题
-            url: 'QJList',                    //请求后台的URL（*）
-            method: 'post',                     //请求方式（*）
-            async: false,                       //ajax请求的时候是同步还是异步。true为异步
-            toolbar: '#toolbar',                //工具按钮用哪个容器
-            queryParams: table.Params,          //传递参数（*）
-            pagination: true,                   //是否显示分页（*）
-            sidePagination: "client",           //分页方式：client客户端分页，server服务端分页（*）
-            pageList: [10, 25, 50, 100],        //可供选择的每页的行数（*）
-            //列信息。title为列头，field此列取得数组对象的属性
-            columns: [
-                     { field: '', title: '', width: 20, checkbox: true },
-                     { field: 'QID', title: '记录ID', visible: false },
-                     { field: 'UserID', title: '用户ID', sortable: true },
-                     //{ field: 'Year', title: '年份', sortable: true },
-                     //{ field: 'Month', title: '月份', sortable: true },
-                     {
-                         field: 'STime', title: '开始时间', sortable: true, formatter:
-                           function (value, row, index) { return getDate(value); }
-                     },
-                     {
-                         field: 'ETime', title: '结束时间', sortable: true, formatter:
-                           function (value, row, index) { return getDate(value); }
-                     },
-                     { field: 'Hours', title: '请假时长' },
-                     { field: 'Remark', title: '工作内容', },
-                     {
-                         field: 'AddTime', title: '添加时间', sortable: true, formatter:
-                           function (value, row, index) { return getDate(value); }
-                     },
-                     {
-                         field: 'ModifiedTime', title: '修改时间', sortable: true, formatter:
-                           function (value, row, index) { return getDate(value); }
-                     }
-            ],
-            //表格加载前，可以在此方法里处理一些逻辑
-            onBeforeLoad: function (datagrid) {
-                console.log('开始加载 表格数据');
-            },
-            //ajax请求成功时调用的方法
-            onComplete: function (datagrid) {
-                console.log("数据请求完成！");
-            },
-            //ajax请求失败处理
-            onError: function (datagrid) {
-                console.log("数据请求发生错误！");
-            },
-            //ajax请求成功返回，表格加载完毕后的处理
-            onLoadSuccess: function (obj) {
-                console.log("表格加载成功！");
+        var tableInit=function(){
+            var table = new Object();
+            table.Init = function(){
+                $(".table").bootstrapTable({
+                    //title: "请假记录",                  //标题
+                    url: 'QJList',                    //请求后台的URL（*）
+                    method: 'post',                     //请求方式（*）
+                    async: false,                       //ajax请求的时候是同步还是异步。true为异步
+                    toolbar: '#toolbar',                //工具按钮用哪个容器
+                    pagination: true,                   //是否显示分页（*）
+                    sidePagination: "server",           //分页方式：client客户端分页，server服务端分页（*）
+                    pageNumber: 1,                      //初始化加载第一页，默认第一页
+                    pageSize: 10,                       //每页的记录行数（*）
+                    pageList: [10, 25, 50, 100],        //可供选择的每页的行数（*）
+                    clickToSelect: true,                //是否启用点击选中行
+                    singleSelect: true,                 //是否单选
+                    showRefresh: true,                  //是否显示刷新按钮
+                    showToggle: true,                   //是否显示详细视图和列表视图的切换按钮
+                    showColumns: true,                  //是否显示所有的列
+                    //传递参数（*）
+                    queryParams: function (params) {
+                        var paramObj = {
+                            UserID: $("#txtUserID").val(),
+                            //Year : $("#txtYear").val(),
+                            //Month : $("#txtMonth").val(),
+                            Type : $("#sltLeaveType").val(),
+                            STime: $("#dtStartTime").find("input").val(),
+                            ETime: $("#dtEndTime").find("input").val(),
+                            Remark: $("#txtRemark").val(),
+                            pagesize: params.limit,
+                            pageindex: params.pageNumber
+                        };
+                        return paramObj;
+                    },
+                    //列信息。title为列头，field此列取得数组对象的属性
+                    columns: [
+                             { field: '', title: '', width: 20, checkbox: true },
+                             { field: 'QID', title: '记录ID', visible: false },
+                             { field: 'RowNum', title: '序号' },
+                             { field: 'UserID', title: '用户ID', sortable: true },
+                             //{ field: 'Year', title: '年份', sortable: true },
+                             //{ field: 'Month', title: '月份', sortable: true },
+                             { field: 'STime', title: '开始时间', sortable: true, formatter: function (value, row, index) { return getDate(value); } },
+                             { field: 'ETime', title: '结束时间', sortable: true, formatter: function (value, row, index) { return getDate(value); } },
+                             { field: 'Type', title: '类型', formatter: function (value, row, index) { return getLeaveType(value); } },
+                             { field: 'Hours', title: '时长', sortable: true },
+                             { field: 'Remark', title: '原因', },
+                             { field: 'AddTime', title: '添加时间', sortable: true, formatter: function (value, row, index) { return getDate(value); } },
+                             { field: 'ModifiedTime', title: '修改时间', sortable: true, formatter: function (value, row, index) { return getDate(value); } }
+                    ],
+                    //表格加载前，可以在此方法里处理一些逻辑
+                    onBeforeLoad: function (datagrid) {
+                        console.log('开始加载 表格数据');
+                    },
+                    //ajax请求成功时调用的方法
+                    onComplete: function (datagrid) {
+                        console.log("数据请求完成！");
+                    },
+                    //ajax请求失败处理
+                    onError: function (datagrid) {
+                        console.log("数据请求发生错误！");
+                    },
+                    //ajax请求成功返回，表格加载完毕后的处理
+                    onLoadSuccess: function (obj) {
+                        console.log("表格加载成功！");
+                    }
+                });
             }
-        });
+            return table;
+        }
 
         //添加
         $("#btnAdd").click(function () {

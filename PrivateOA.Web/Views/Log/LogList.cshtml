@@ -79,10 +79,11 @@
 @section Scripts {
     <script src="~/Scripts/jquery-1.10.2.min.js"></script>
     <script src="~/Scripts/moment-with-locales.min.js"></script>
+    <script src="~/Scripts/bootstrap.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
     <script src="~/Scripts/bootstrap-datetimepicker.min.js"></script>
     <script src="~/Scripts/bootstrap-table.js"></script>
     <script src="~/Scripts/bootstrap-table-zh-CN.js"></script>
-    <script src="~/Scripts/bootstrap.min.js"></script>
     <script src="~/Scripts/privateoa-common.js"></script>
     <script type="text/javascript">
         $(function () {
@@ -109,7 +110,12 @@
             pageNumber: 1,                      //初始化加载第一页，默认第一页
             pageSize: 10,                       //每页的记录行数（*）
             pageList: [10, 25, 50, 100],        //可供选择的每页的行数（*）
-            queryParamsType: "limit",
+            clickToSelect: true,                //是否启用点击选中行
+            singleSelect: true,                 //是否单选
+            showRefresh: true,                  //是否显示刷新按钮
+            showToggle: true,                   //是否显示详细视图和列表视图的切换按钮
+            showColumns: true,                  //是否显示所有的列
+            detailView: true,                  //是否显示父子表
             //queryParams: table.queryParams,          //传递参数（*）
             queryParams: function (params) {
                 var paramObj = {
@@ -121,20 +127,25 @@
                     userid: $("#txtUserID").val(),
                     clientip: $("#txtClientIP").val(),
                     pagesize: params.limit,
-                    pageindex: params.offset / 10 + 1
+                    pageindex: params.pageNumber
                 };
                 return paramObj;
             },          //传递参数（*）
             //列信息。title为列头，field此列取得数组对象的属性
             columns: [
-                     { field: 'RID', title: '日志ID', visible: false },//
+                     { field: 'RID', title: '日志ID', visible: false },
+                     { field: 'RowNum', title: '序号' },
                      { field: 'Type', title: '类型', formatter: function (value, row, index) { return getLogType(value); } },
                      { field: 'KeyValue', title: 'Key值' },
                      { field: 'LogTime', title: '时间', sortable: true, formatter: function (value, row, index) { return getDate(value); } },
-                     { field: 'Content', title: '内容' },
+                     { field: 'Content', title: '内容', formatter: function (value, row, index) { return value.substr(0, 50) + '...'; } },
                      { field: 'UserID', title: '用户ID' },
                      { field: 'ClientIP', title: '客户端IP' }
             ],
+            //打开子列表
+            onExpandRow: function (index, row, $detail) {
+                $detail.html(row.Content);
+            },
             //表格加载前，可以在此方法里处理一些逻辑
             onBeforeLoad: function (datagrid) {
                 console.log('开始加载 表格数据');
@@ -153,22 +164,6 @@
                 //table.totalRows = parseInt(obj.TotalCount);
             }
         });
-        ////参数
-        //table.queryParams = function (params) {
-        //    var paramObj = {
-        //        type: $("#sltLogType").val(),
-        //        keyvalue: $("#txtKeyValue").val(),
-        //        starttime: $("#dtStartTime").find("input").val(),
-        //        endtime: $("#dtEndTime").find("input").val(),
-        //        keyword: $("#txtKeyWord").val(),
-        //        userid: $("#txtUserID").val(),
-        //        clientip: $("#txtClientIP").val(),
-        //        pagesize: params.limit,
-        //        pageindex: params.offset / 10 + 1
-        //    };
-        //    return paramObj;
-        //}
-
         //查询
         $("#btnSearch").click(function () {
             $(".table").bootstrapTable("refresh");

@@ -9,7 +9,7 @@ namespace PrivateOA.Entity
     /// <summary>
     /// 请假查询
     /// </summary>
-    public class QJQuery
+    public class QJQuery : PageParams
     {
         /// <summary>
         /// 用户ID
@@ -18,11 +18,15 @@ namespace PrivateOA.Entity
         /// <summary>
         /// 年份
         /// </summary>
-        public int? Year { get; set; }
+        //public int? Year { get; set; }
         /// <summary>
         /// 月份
         /// </summary>
-        public int? Month { get; set; }
+        //public int? Month { get; set; }
+        /// <summary>
+        /// 请假类型
+        /// </summary>
+        public int Type { get; set; }
         /// <summary>
         /// 开始时间
         /// </summary>

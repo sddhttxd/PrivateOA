@@ -9,7 +9,7 @@ namespace PrivateOA.Entity
     /// <summary>
     /// 加班查询
     /// </summary>
-    public class JBQuery
+    public class JBQuery : PageParams
     {
         /// <summary>
         /// 用户ID
@@ -18,11 +18,11 @@ namespace PrivateOA.Entity
         /// <summary>
         /// 年份
         /// </summary>
-        public int? Year { get; set; }
+        //public int? Year { get; set; }
         /// <summary>
         /// 月份
         /// </summary>
-        public int? Month { get; set; }
+        //public int? Month { get; set; }
         /// <summary>
         /// 开始时间
         /// </summary>

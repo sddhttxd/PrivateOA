@@ -129,13 +129,20 @@ namespace PrivateOA.Common
         /// <returns></returns>
         public string GetClientIP()
         {
-            string result = HttpContext.Current.Request.ServerVariables["REMOTE_ADDR"];
-            if (string.IsNullOrEmpty(result))
-                result = HttpContext.Current.Request.ServerVariables["HTTP_X_FORWARDED_FOR"];
-            if (string.IsNullOrEmpty(result))
-                result = HttpContext.Current.Request.UserHostAddress;
-            if (string.IsNullOrEmpty(result))
-                return "127.0.0.1";
+            string result = "";
+            try
+            {
+                result = HttpContext.Current.Request.ServerVariables["REMOTE_ADDR"];
+                if (string.IsNullOrEmpty(result))
+                    result = HttpContext.Current.Request.ServerVariables["HTTP_X_FORWARDED_FOR"];
+                if (string.IsNullOrEmpty(result))
+                    result = HttpContext.Current.Request.UserHostAddress;
+                if (string.IsNullOrEmpty(result))
+                    return "127.0.0.1";
+            }
+            catch {
+                result = "";
+            }
             return result;
         }
 

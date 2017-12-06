@@ -38,16 +38,20 @@ namespace PrivateOA.Business
                 {
                     QJRecord model = request.Data;
                     model.UserID = new Utility().GetUserID(cookieKey);
-                    //model.Year = DateTime.Now.Year;
-                    //model.Month = DateTime.Now.Month;
+                    //model.Year = model.STime.Year;
+                    //model.Month = model.STime.Month;
+                    model.Type = IsEnoughRestHours(model.UserID, model.STime.Year, model.Hours, request.RequestKey) ? LeaveType.Rest : LeaveType.Leave;
                     model.AddTime = DateTime.Now;
                     model.ModifiedTime = DateTime.Now;
                     dbContext.QJRecords.Add(model);
                     if (dbContext.SaveChanges() > 0)
                     {
                         log.AddLog(LogType.Info, "AddQJRecord,添加请假成功：" + JsonConvert.SerializeObject(model), request.RequestKey);
-                        var qid = dbContext.QJRecords.Select(o => o.QID).Max();
-                        txlogic.SubtractHours(qid, model.Hours, model.Remark, request.RequestKey);
+                        if (model.Type == LeaveType.Rest)
+                        {
+                            var qid = dbContext.QJRecords.Select(o => o.QID).Max();
+                            txlogic.SubtractHours(qid, model.STime, model.Hours, model.Remark, request.RequestKey);
+                        }
                     }
                 }
             }
@@ -79,16 +83,29 @@ namespace PrivateOA.Business
                         Data = data.QID
                     };
                     QJRecord model = GetQJRecordById(req).Result;
+                    var orgType = model.Type;
                     model.STime = data.STime;
                     model.ETime = data.ETime;
                     model.Hours = data.Hours;
                     model.Remark = data.Remark;
                     model.ModifiedTime = DateTime.Now;
+                    model.Type = IsEnoughRestHours(model.UserID, model.STime.Year, model.Hours, request.RequestKey) ? LeaveType.Rest : LeaveType.Leave;
                     dbContext.Entry(model).State = EntityState.Modified;
                     if (dbContext.SaveChanges() > 0)
                     {
                         log.AddLog(LogType.Info, "EditQJRecord,修改请假成功：" + JsonConvert.SerializeObject(model), request.RequestKey);
-                        txlogic.EditTXHours(model.QID, model.Hours, model.Remark, request.RequestKey);
+                        if (orgType == LeaveType.Rest && model.Type == LeaveType.Rest)
+                        {
+                            txlogic.EditTXHours(model.QID, model.STime, model.Hours, model.Remark, request.RequestKey);
+                        }
+                        else if (orgType == LeaveType.Leave && model.Type == LeaveType.Rest)
+                        {
+                            txlogic.SubtractHours(model.QID, model.STime, model.Hours, model.Remark, request.RequestKey);
+                        }
+                        else if (orgType == LeaveType.Rest && model.Type == LeaveType.Leave)
+                        {
+                            txlogic.DelTXHours(model.QID, request.RequestKey);
+                        }
                     }
                 }
             }
@@ -123,7 +140,10 @@ namespace PrivateOA.Business
                     if (dbContext.SaveChanges() > 0)
                     {
                         log.AddLog(LogType.Info, "DelQJRecord,删除请假成功：" + JsonConvert.SerializeObject(model), request.RequestKey);
-                        txlogic.DelTXHours(model.QID, request.RequestKey);
+                        if (model.Type == LeaveType.Rest)
+                        {
+                            txlogic.DelTXHours(model.QID, request.RequestKey);
+                        }
                     }
                 }
             }
@@ -172,11 +192,11 @@ namespace PrivateOA.Business
                 if (request != null && request.Data != null)
                 {
                     var model = request.Data;
-                    model.UserID = utility.GetUserID(cookieKey);
                     RoleType role = utility.GetRoleType(cookieKey);
+                    model.UserID = role == RoleType.Admin ? model.UserID : utility.GetUserID(cookieKey);
 
                     IQueryable<QJRecord> query = dbContext.QJRecords.AsQueryable();
-                    if (model.UserID.HasValue && role != RoleType.Admin)
+                    if (model.UserID.HasValue && model.UserID != 0)//role != RoleType.Admin
                     {
                         query = query.Where(o => o.UserID == model.UserID.Value);
                     }
@@ -188,6 +208,10 @@ namespace PrivateOA.Business
                     //{
                     //    query = query.Where(o => o.Month == model.Month.Value);
                     //}
+                    if (model.Type != 0)
+                    {
+                        query = query.Where(o => (int)o.Type == model.Type);
+                    }
                     if (model.STime.HasValue)
                     {
                         query = query.Where(o => o.STime >= model.STime.Value);
@@ -200,7 +224,11 @@ namespace PrivateOA.Business
                     {
                         query = query.Where(o => o.Remark.Contains(model.RemarkKey));
                     }
-                    response.Result = query.OrderByDescending(o => o.ModifiedTime).ToList();
+                    //response.Result = query.OrderByDescending(o => o.ModifiedTime).ToList();
+                    response.TotalCount = query.Count();
+                    int pageIndex = model.PageIndex <= 0 ? 1 : model.PageIndex;
+                    int pageSize = model.PageSize <= 0 ? 10 : model.PageSize;
+                    response.Result = query.OrderByDescending(o => o.ModifiedTime).Skip((pageIndex - 1) * pageSize).Take(pageSize).ToList();
                     if (response.Result != null && response.Result.Count > 0)
                     {
                         response.IsSuccess = true;
@@ -218,6 +246,31 @@ namespace PrivateOA.Business
                 log.AddLog(LogType.Error, "GetQJRecordList,查询请假异常：" + ex.Message, request.RequestKey);
             }
             return response;
+        }
+
+        /// <summary>
+        /// 检查是否有足够的调休
+        /// </summary>
+        /// <param name="userid">请假用户id</param>
+        /// <param name="hours">请假时长</param>
+        /// <param name="key">业务Key值</param>
+        /// <returns>结果</returns>
+        private bool IsEnoughRestHours(int userid, int year, double hours, string key)
+        {
+            bool result = false;
+            try
+            {
+                double hasHours = txlogic.GetLastHours(userid, year, key);
+                if (hasHours >= hours)
+                {
+                    result = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                log.AddLog(LogType.Error, "AddQJRecord-IsEnoughRestHours,检查是否足够调休出现异常：" + ex.Message, key);
+            }
+            return result;
         }
     }
 }

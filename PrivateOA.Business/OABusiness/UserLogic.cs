@@ -21,7 +21,7 @@ namespace PrivateOA.Business
         private readonly PrivateOADBContext dbContext = new PrivateOADBContext();
         private readonly LogLogic log = new LogLogic();
         private readonly Utility utility = new Utility();
-
+        
         /// <summary>
         /// 添加用户（注册）
         /// </summary>
@@ -286,7 +286,11 @@ namespace PrivateOA.Business
                     {
                         query = query.Where(o => o.Status.Equals(data.Status));
                     }
-                    response.Result = query.OrderByDescending(o => o.ModifiedTime).ToList();
+                    //response.Result = query.OrderByDescending(o => o.ModifiedTime).ToList();
+                    response.TotalCount = query.Count();
+                    int pageIndex = data.PageIndex <= 0 ? 1 : data.PageIndex;
+                    int pageSize = data.PageSize <= 0 ? 10 : data.PageSize;
+                    response.Result = query.OrderByDescending(o => o.ModifiedTime).Skip((pageIndex - 1) * pageSize).Take(pageSize).ToList();
                     if (response.Result != null && response.Result.Count > 0)
                     {
                         response.IsSuccess = true;

@@ -32,7 +32,7 @@
             </select>
         </div>
     </form>
-    <table class="table table-hover " data-show-refresh="true" data-show-columns="true"></table>
+    <table class="table table-hover"></table>
     @*table-striped table-bordered table-condensed*@
     <div id="toolbar">
         <button type="button" class="btn btn-info btn-flat" id="btnAdd"><i class="glyphicon glyphicon-plus"></i> 添加</button>
@@ -51,9 +51,10 @@
 
 @section Scripts {
     <script src="~/Scripts/jquery-1.10.2.min.js"></script>
+    <script src="~/Scripts/bootstrap.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
     <script src="~/Scripts/bootstrap-table.js"></script>
     <script src="~/Scripts/bootstrap-table-zh-CN.js"></script>
-    <script src="~/Scripts/bootstrap.min.js"></script>
     <script src="~/Scripts/privateoa-common.js"></script>
     <script type="text/javascript">
         $(function () {
@@ -62,40 +63,32 @@
 
         //初始化
         var table = new Object();
-        table.Params = function (params) {
-            params.UserName = $("#txtUserName").val();
-            params.TrueName = $("#txtTrueName").val();
-            params.TellPhone = $("#txtTellPhone").val();
-            params.Department = $("#txtDepartment").val();
-            params.Status = $("#sltStatus").val();
-            return params;
-        }
         table.Init = $(".table").bootstrapTable({
             //title: "用户列表",                  //标题
             url: 'UserList',                    //请求后台的URL（*）
             method: 'post',                     //请求方式（*）
             async: false,                       //ajax请求的时候是同步还是异步。true为异步
             toolbar: '#toolbar',                //工具按钮用哪个容器
-            //striped: true,                      //是否显示行间隔色
+            striped: true,                      //是否显示行间隔色
+            pagination: true,                   //是否显示分页（*）
+            sidePagination: "server",           //分页方式：client客户端分页，server服务端分页（*）
+            pageNumber: 1,                      //初始化加载第一页，默认第一页
+            pageSize: 10,                       //每页的记录行数（*）
+            pageList: [10, 25, 50, 100],        //可供选择的每页的行数（*）
+            clickToSelect: true,                //是否启用点击选中行
+            singleSelect: true,                 //是否单选
+            showRefresh: true,                  //是否显示刷新按钮
+            showToggle: true,                   //是否显示详细视图和列表视图的切换按钮
+            showColumns: true,                  //是否显示所有的列
+            //search: true,                       //是否显示表格搜索，此搜索是客户端搜索，不会进服务端，所以，个人感觉意义不大
             //cache: false,                       //是否使用缓存，默认为true，所以一般情况下需要设置一下这个属性（*）
             //sortable: false,                    //是否启用排序
             //sortOrder: "asc",                   //排序方式
-            queryParams: table.Params,          //传递参数（*）
-            pagination: true,                   //是否显示分页（*）
-            sidePagination: "client",           //分页方式：client客户端分页，server服务端分页（*）
-            pageList: [10, 25, 50, 100],        //可供选择的每页的行数（*）
-            //pageNumber: 1,                      //初始化加载第一页，默认第一页
-            //pageSize: 10,                       //每页的记录行数（*）
-            //search: true,                       //是否显示表格搜索，此搜索是客户端搜索，不会进服务端，所以，个人感觉意义不大
             //contentType: "application/x-www-form-urlencoded",
             //strictSearch: true,
             //showThead: false,                    //是否展示列标题，即列头
-            //showColumns: true,                  //是否显示所有的列
-            //showRefresh: true,                  //是否显示刷新按钮
             //minimumCountColumns: 2,             //最少允许的列数
-            //clickToSelect: true,                //是否启用点击选中行
             //uniqueId: "no",                     //每一行的唯一标识，一般为主键列
-            //showToggle: true,                   //是否显示详细视图和列表视图的切换按钮
             //cardView: false,                    //是否显示详细视图
             //detailView: false,                  //是否显示父子表
             //customColumns: true,                //是否可以自定义展示的列（右上角的表格小图标事件）
@@ -103,11 +96,24 @@
             //titleCheckbox: true,                //是否显示列头的复选框（全选作用）
             //emptyTips: "数据条目为空！",        //记录为空时的提示信息
             //selectedNums: 1,                    //复选框存在的情况下，最多可以选择几个,1代表单选，只能选择一个。0为不限制
-            //singleSelect: true,                 //是否单选
+            //传递参数（*）
+            queryParams: function (params) {
+                var paramObj = {
+                    UserName : $("#txtUserName").val(),
+                    TrueName : $("#txtTrueName").val(),
+                    TellPhone : $("#txtTellPhone").val(),
+                    Department : $("#txtDepartment").val(),
+                    Status : $("#sltStatus").val(),
+                    pagesize: params.limit,
+                    pageindex: params.pageNumber
+                };
+                return paramObj;
+            },
             //列信息。title为列头，field此列取得数组对象的属性
             columns: [
                      { field: '', title: '', width: 20, checkbox: true },
                      { field: 'UserID', title: '用户ID', visible: false },
+                     { field: 'RowNum', title: '序号' },
                      { field: 'UserName', title: '用户名', sortable: true },
                      { field: 'TrueName', title: '姓名', sortable: true },
                      { field: 'TellPhone', title: '电话' },

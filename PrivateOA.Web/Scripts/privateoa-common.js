@@ -52,3 +52,27 @@ function getLogType(value) {
             return value;
     }
 }
+
+//请假类型
+function getLeaveType(value) {
+    switch (value) {
+        case 1:
+            return "调休";
+        case 2:
+            return "事假";
+        default:
+            return value;
+    }
+}
+
+//OA类型
+function getOAType(value) {
+    switch (value) {
+        case 1:
+            return "加班";
+        case 2:
+            return "请假";
+        default:
+            return value;
+    }
+}

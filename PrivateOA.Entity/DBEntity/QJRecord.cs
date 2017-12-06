@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static PrivateOA.Entity.CommonEnum;
 
 namespace PrivateOA.Entity
 {
@@ -38,7 +39,11 @@ namespace PrivateOA.Entity
         /// <summary>
         /// 请假时长
         /// </summary>
-        public int Hours { get; set; }
+        public double Hours { get; set; }
+        /// <summary>
+        /// 请假类型
+        /// </summary>
+        public LeaveType Type { get; set; }
         /// <summary>
         /// 备注
         /// </summary>

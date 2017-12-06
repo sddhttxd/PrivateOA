@@ -9,7 +9,7 @@ namespace PrivateOA.Entity
     /// <summary>
     /// 用户查询
     /// </summary>
-    public class UserQuery
+    public class UserQuery : PageParams
     {
         /// <summary>
         /// 用户名

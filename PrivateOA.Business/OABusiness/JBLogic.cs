@@ -48,7 +48,7 @@ namespace PrivateOA.Business
                         response.IsSuccess = true;
                         log.AddLog(LogType.Info, "AddJBRecord,添加加班成功：" + JsonConvert.SerializeObject(model), request.RequestKey);
                         var jid = dbContext.JBRecords.Select(o => o.JID).Max();
-                        txlogic.AddHours(jid, model.Hours, model.Remark, request.RequestKey);
+                        txlogic.AddHours(jid, model.STime, model.Hours, model.Remark, request.RequestKey);
                     }
                 }
             }
@@ -90,7 +90,7 @@ namespace PrivateOA.Business
                     {
                         response.IsSuccess = true;
                         log.AddLog(LogType.Info, "EditJBRecord,修改加班成功：" + JsonConvert.SerializeObject(model), request.RequestKey);
-                        txlogic.EditTXHours(model.JID, model.Hours, model.Remark, request.RequestKey);
+                        txlogic.EditTXHours(model.JID, model.STime, model.Hours, model.Remark, request.RequestKey);
                     }
                 }
             }
@@ -178,11 +178,11 @@ namespace PrivateOA.Business
                 if (request != null && request.Data != null)
                 {
                     JBQuery model = request.Data;
-                    model.UserID = utility.GetUserID(cookieKey);
                     RoleType role = utility.GetRoleType(cookieKey);
+                    model.UserID = role == RoleType.Admin ? model.UserID : utility.GetUserID(cookieKey);
 
                     IQueryable<JBRecord> query = dbContext.JBRecords.AsQueryable();
-                    if (model.UserID.HasValue && role != RoleType.Admin)
+                    if (model.UserID.HasValue && model.UserID != 0)//role != RoleType.Admin
                     {
                         query = query.Where(o => o.UserID == model.UserID.Value);
                     }
@@ -206,7 +206,11 @@ namespace PrivateOA.Business
                     {
                         query = query.Where(o => o.Remark.Contains(model.RemarkKey));
                     }
-                    response.Result = query.OrderByDescending(o => o.ModifiedTime).ToList();
+                    //response.Result = query.OrderByDescending(o => o.ModifiedTime).ToList();
+                    response.TotalCount = query.Count();
+                    int pageIndex = model.PageIndex <= 0 ? 1 : model.PageIndex;
+                    int pageSize = model.PageSize <= 0 ? 10 : model.PageSize;
+                    response.Result = query.OrderByDescending(o => o.ModifiedTime).Skip((pageIndex - 1) * pageSize).Take(pageSize).ToList();
                     if (response.Result != null && response.Result.Count > 0)
                     {
                         response.IsSuccess = true;

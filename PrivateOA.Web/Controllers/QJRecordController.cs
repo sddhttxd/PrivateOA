@@ -29,6 +29,7 @@ namespace PrivateOA.Web.Controllers
             if (Request.HttpMethod == "POST")
             {
                 Response<List<QJRecord>> response = new Response<List<QJRecord>>();
+                List<object> list = new List<object>();
                 if (data != null)
                 {
                     Request<QJQuery> request = new Request<QJQuery>();
@@ -36,11 +37,40 @@ namespace PrivateOA.Web.Controllers
                     request.RequestKey = Guid.NewGuid().ToString();
                     request.RequsetTime = DateTime.Now;
                     response = logic.GetQJRecordList(request);
+                    //行号
+                    #region
+                    if (response.Result != null && response.Result.Count > 0)
+                    {
+                        int index = 1;
+                        foreach (QJRecord item in response.Result)
+                        {
+                            list.Add(new
+                            {
+                                RowNum = index,
+                                QID = item.QID,
+                                UserID = item.UserID,
+                                STime = item.STime,
+                                ETime = item.ETime,
+                                Hours = item.Hours,
+                                Type = item.Type,
+                                Remark = item.Remark,
+                                AddTime = item.AddTime,
+                                ModifiedTime = item.ModifiedTime
+                            });
+                            index++;
+                        }
+                    }
+                    #endregion
                 }
-                return Json(new { data = response.Result });
+                //return Json(new { data = response.Result });
+                //return Json(new { rows = response.Result, total = response.TotalCount });
+                return Json(new { rows = list, total = response.TotalCount });
             }
             else
             {
+                ViewData["UserID"] = string.IsNullOrEmpty(Request["userid"]) ? "0" : Request["userid"];
+                ViewData["Year"] = string.IsNullOrEmpty(Request["year"]) ? "0" : Request["year"];
+                ViewData["Month"] = string.IsNullOrEmpty(Request["month"]) ? "0" : Request["month"];
                 return View();
             }
         }

@@ -50,7 +50,7 @@
                         </ul>
                         <div class="nav navbar-nav navbar-right" style="color:#e8e8e89c; margin-top:18px;">
                             @user.TrueName &nbsp;&nbsp;
-                            <a href="@Url.Action("LoginOut", "User")"><i class="fa fa-sign-out text-danger"></i> 注销</a>
+                            <a href="@Url.Action("LoginOut", "User")"><i class="fa fa-sign-out text-danger"></i> [注销]</a>
                         </div>
                     }
                     else
@@ -66,10 +66,10 @@
     </div>
     <div class="container body-content">
         @RenderBody()
-        <hr />
+        @*<hr />
         <footer>
             <p>&copy; @DateTime.Now.Year - PrivateOA System</p>
-        </footer>
+        </footer>*@
     </div>
 
     @Scripts.Render("~/bundles/jquery")

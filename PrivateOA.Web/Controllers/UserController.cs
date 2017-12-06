@@ -31,6 +31,7 @@ namespace PrivateOA.Web.Controllers
             if (Request.HttpMethod == "POST")
             {
                 Response<List<User>> response = new Response<List<Entity.User>>();
+                List<object> list = new List<object>();
                 if (user != null)
                 {
                     Request<UserQuery> request = new Entity.Request<UserQuery>();
@@ -38,8 +39,36 @@ namespace PrivateOA.Web.Controllers
                     request.RequestKey = Guid.NewGuid().ToString();
                     request.RequsetTime = DateTime.Now;
                     response = logic.GetUsers(request);
+                    //行号
+                    #region
+                    if (response.Result != null && response.Result.Count > 0)
+                    {
+                        int index = 1;
+                        foreach (User item in response.Result)
+                        {
+                            list.Add(new
+                            {
+                                RowNum = index,
+                                UserID = item.UserID,
+                                UserName = item.UserName,
+                                TrueName = item.TrueName,
+                                PassWord = item.PassWord,
+                                TellPhone = item.TellPhone,
+                                Department = item.Department,
+                                Status = item.Status,
+                                Role = item.Role,
+                                Remark = item.Remark,
+                                AddTime = item.AddTime,
+                                ModifiedTime = item.ModifiedTime
+                            });
+                            index++;
+                        }
+                    }
+                    #endregion
                 }
-                return Json(new { data = response.Result });
+                //return Json(new { data = response.Result });
+                //return Json(new { rows = response.Result, total = response.TotalCount });
+                return Json(new { rows = list, total = response.TotalCount });
             }
             else
             {

@@ -50,6 +50,7 @@
     <Compile Include="ParamEntity\LoginRequest.cs" />
     <Compile Include="ParamEntity\LogQuery.cs" />
     <Compile Include="ParamEntity\QJQuery.cs" />
+    <Compile Include="ParamEntity\TXQuery.cs" />
     <Compile Include="ParamEntity\TXStatistics.cs" />
     <Compile Include="ParamEntity\UserQuery.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
