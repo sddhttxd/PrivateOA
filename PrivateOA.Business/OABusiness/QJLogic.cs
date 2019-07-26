@@ -96,7 +96,7 @@ namespace PrivateOA.Business
                         log.AddLog(LogType.Info, "EditQJRecord,修改请假成功：" + JsonConvert.SerializeObject(model), request.RequestKey);
                         if (orgType == LeaveType.Rest && model.Type == LeaveType.Rest)
                         {
-                            txlogic.EditTXHours(model.QID, model.STime, model.Hours, model.Remark, request.RequestKey);
+                            txlogic.EditTXHours(model.QID, OAType.QingJia, model.STime, 0 - model.Hours, model.Remark, request.RequestKey);
                         }
                         else if (orgType == LeaveType.Leave && model.Type == LeaveType.Rest)
                         {
@@ -104,7 +104,7 @@ namespace PrivateOA.Business
                         }
                         else if (orgType == LeaveType.Rest && model.Type == LeaveType.Leave)
                         {
-                            txlogic.DelTXHours(model.QID, request.RequestKey);
+                            txlogic.DelTXHours(model.QID, OAType.QingJia, request.RequestKey);
                         }
                     }
                 }
@@ -142,7 +142,7 @@ namespace PrivateOA.Business
                         log.AddLog(LogType.Info, "DelQJRecord,删除请假成功：" + JsonConvert.SerializeObject(model), request.RequestKey);
                         if (model.Type == LeaveType.Rest)
                         {
-                            txlogic.DelTXHours(model.QID, request.RequestKey);
+                            txlogic.DelTXHours(model.QID, OAType.QingJia, request.RequestKey);
                         }
                     }
                 }

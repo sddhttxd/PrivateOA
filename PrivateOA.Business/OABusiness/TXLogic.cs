@@ -101,17 +101,18 @@ namespace PrivateOA.Business
         /// 修改调休时间
         /// </summary>
         /// <param name="oaid">加班或请假记录ID</param>
+        /// <param name="oatype">1:加班;2:请假</param>
         /// <param name="hours">时长</param>
         /// <param name="remark">备注</param>
         /// <param name="key">业务GUID</param>
         /// <returns></returns>
-        public bool EditTXHours(int oaid, DateTime date, double hours, string remark, string key)
+        public bool EditTXHours(int oaid, OAType oatype, DateTime date, double hours, string remark, string key)
         {
             bool result = false;
             try
             {
                 //TXHours model = (from m in dbContext.TXHours where m.OAID == oaid select m).FirstOrDefault();
-                TXHours model = dbContext.TXHours.FirstOrDefault(o => o.OAID == oaid);
+                TXHours model = dbContext.TXHours.FirstOrDefault(o => o.OAID == oaid && o.OAType == oatype);
                 model.Year = date.Year;
                 model.Month = date.Month;
                 model.Hours = hours;
@@ -136,15 +137,16 @@ namespace PrivateOA.Business
         /// 删除调休时间
         /// </summary>
         /// <param name="oaid">加班或请假记录ID</param>
+        /// <param name="oatype">1:加班;2:请假</param>
         /// <param name="key">业务GUID</param>
         /// <returns></returns>
-        public bool DelTXHours(int oaid, string key)
+        public bool DelTXHours(int oaid, OAType oatype, string key)
         {
             bool result = false;
             try
             {
                 //TXHours model = (from m in dbContext.TXHours where m.OAID == oaid select m).FirstOrDefault();
-                TXHours model = dbContext.TXHours.FirstOrDefault(o => o.OAID == oaid);
+                TXHours model = dbContext.TXHours.FirstOrDefault(o => o.OAID == oaid && o.OAType == oatype);
                 dbContext.TXHours.Remove(model);
                 if (dbContext.SaveChanges() > 0)
                 {

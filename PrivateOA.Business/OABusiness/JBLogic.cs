@@ -90,7 +90,7 @@ namespace PrivateOA.Business
                     {
                         response.IsSuccess = true;
                         log.AddLog(LogType.Info, "EditJBRecord,修改加班成功：" + JsonConvert.SerializeObject(model), request.RequestKey);
-                        txlogic.EditTXHours(model.JID, model.STime, model.Hours, model.Remark, request.RequestKey);
+                        txlogic.EditTXHours(model.JID, OAType.JiaBan, model.STime, model.Hours, model.Remark, request.RequestKey);
                     }
                 }
             }
@@ -126,7 +126,7 @@ namespace PrivateOA.Business
                     {
                         response.IsSuccess = true;
                         log.AddLog(LogType.Info, "DelJBRecord,删除加班成功：" + JsonConvert.SerializeObject(model), request.RequestKey);
-                        txlogic.DelTXHours(model.JID, request.RequestKey);
+                        txlogic.DelTXHours(model.JID, OAType.JiaBan, request.RequestKey);
                     }
                 }
             }
